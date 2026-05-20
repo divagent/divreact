@@ -5,22 +5,17 @@ import { AiAgentPanel } from './components/AiAgentPanel'
 import { AppHeader } from './components/AppHeader'
 import { DividendDrawer } from './components/DividendDrawer'
 import { DividendTable } from './components/DividendTable'
-import { Filters } from './components/Filters'
 import { SidePanel } from './components/SidePanel'
-import { SignalBoard } from './components/SignalBoard'
 import { defaultWatchlist, queryPresets, themeVars } from './config/app'
 import { sampleDividends } from './data/sampleDividends'
-import type { DateWindow, Dividend, SortDirection } from './types/dividend'
-import { filterAndSortDividends, getExchangeOptions, getHighestYield, getNextPayment } from './utils/dividends'
-import { addDays, formatCurrency, formatPercent } from './utils/formatters'
+import type { Dividend, SortDirection } from './types/dividend'
+import { filterAndSortDividends, getHighestYield, getNextPayment } from './utils/dividends'
+import { addDays } from './utils/formatters'
 
 export function App() {
     const today = new Date().toISOString().slice(0, 10)
-    const [query, setQuery] = useState('')
-    const [dateWindow, setDateWindow] = useState<DateWindow>('week')
-    const [startDate, setStartDate] = useState(today)
-    const [endDate, setEndDate] = useState(addDays(today, 7))
-    const [exchange, setExchange] = useState('all')
+    const startDate = today
+    const endDate = addDays(today, 7)
     const [pageSize, setPageSize] = useState(10)
     const [page, setPage] = useState(1)
     const [sortKey, setSortKey] = useState<keyof Dividend>('exDividendDate')
@@ -31,25 +26,8 @@ export function App() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState('')
     const [aiPrompt, setAiPrompt] = useState(queryPresets[0])
-    const [aiOutput, setAiOutput] = useState('Ask the AI Agent to interpret the current calendar, watchlist, and filters.')
+    const [aiOutput, setAiOutput] = useState('Ask the AI Agent to interpret the current calendar and watchlist.')
     const [isAiStreaming, setIsAiStreaming] = useState(false)
-
-    useEffect(() => {
-        if (dateWindow === 'today') {
-            setStartDate(today)
-            setEndDate(today)
-        }
-
-        if (dateWindow === 'week') {
-            setStartDate(today)
-            setEndDate(addDays(today, 7))
-        }
-
-        if (dateWindow === 'month') {
-            setStartDate(today)
-            setEndDate(addDays(today, 30))
-        }
-    }, [dateWindow, today])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -62,8 +40,8 @@ export function App() {
                 const nextDividends = await fetchDividends({
                     startDate,
                     endDate,
-                    query,
-                    exchange,
+                    query: '',
+                    exchange: 'all',
                     signal: controller.signal,
                 })
                 setDividends(nextDividends)
@@ -80,28 +58,21 @@ export function App() {
         loadDividends()
 
         return () => controller.abort()
-    }, [startDate, endDate, query, exchange])
+    }, [startDate, endDate])
 
-    useEffect(() => setPage(1), [query, startDate, endDate, exchange, pageSize])
+    useEffect(() => setPage(1), [startDate, endDate, pageSize])
 
-    const exchangeOptions = useMemo(() => getExchangeOptions(dividends), [dividends])
     const filteredDividends = useMemo(
-        () => filterAndSortDividends(dividends, query, exchange, sortKey, sortDirection),
-        [dividends, exchange, query, sortDirection, sortKey],
+        () => filterAndSortDividends(dividends, '', 'all', sortKey, sortDirection),
+        [dividends, sortDirection, sortKey],
     )
 
     const totalPages = Math.max(1, Math.ceil(filteredDividends.length / pageSize))
     const pageDividends = filteredDividends.slice((page - 1) * pageSize, page * pageSize)
     const visibleStart = filteredDividends.length ? (page - 1) * pageSize + 1 : 0
     const visibleEnd = Math.min(page * pageSize, filteredDividends.length)
-    const highYieldCount = filteredDividends.filter((dividend) => Number(dividend.yield ?? 0) >= 5).length
-    const confirmedCount = filteredDividends.filter((dividend) => dividend.status === 'Confirmed').length
     const nextPayment = getNextPayment(filteredDividends)
     const highestYield = getHighestYield(filteredDividends)
-    const averageYield =
-        filteredDividends.length > 0
-            ? filteredDividends.reduce((sum, dividend) => sum + Number(dividend.yield ?? 0), 0) / filteredDividends.length
-            : 0
 
     function handleSort(nextKey: keyof Dividend) {
         if (sortKey === nextKey) {
@@ -119,32 +90,6 @@ export function App() {
         )
     }
 
-    function exportCsv() {
-        const rows = [
-            ['Symbol', 'Company', 'Ex-Date', 'Record Date', 'Payment Date', 'Amount', 'Yield', 'Frequency', 'Exchange'],
-            ...filteredDividends.map((dividend) => [
-                dividend.symbol,
-                dividend.companyName,
-                dividend.exDividendDate,
-                dividend.recordDate ?? '',
-                dividend.paymentDate ?? '',
-                formatCurrency(dividend.amount),
-                formatPercent(dividend.yield),
-                dividend.frequency ?? '',
-                dividend.exchange ?? '',
-            ]),
-        ]
-
-        const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = `dividends-${startDate}-${endDate}.csv`
-        link.click()
-        URL.revokeObjectURL(url)
-    }
-
     async function runAiQuery() {
         if (!aiPrompt.trim() || isAiStreaming) return
 
@@ -154,7 +99,7 @@ export function App() {
         await streamAiQuery(
             {
                 prompt: aiPrompt,
-                filters: { startDate, endDate, exchange, search: query },
+                filters: { startDate, endDate, exchange: 'all', search: '' },
                 watchlist,
                 dividends: filteredDividends.slice(0, 30),
             },
@@ -165,30 +110,13 @@ export function App() {
         setIsAiStreaming(false)
     }
 
+    function promptForSymbol(symbol: string) {
+        setAiPrompt(`Analyze dividend timing, yield, and payment risk for ${symbol}.`)
+    }
+
     return (
         <main className="app-shell" style={themeVars}>
-            <AppHeader onExport={exportCsv} />
-
-            <SignalBoard
-                eventCount={filteredDividends.length}
-                confirmedCount={confirmedCount}
-                highYieldCount={highYieldCount}
-                averageYield={formatPercent(averageYield)}
-            />
-
-            <Filters
-                query={query}
-                dateWindow={dateWindow}
-                startDate={startDate}
-                endDate={endDate}
-                exchange={exchange}
-                exchangeOptions={exchangeOptions}
-                onQueryChange={setQuery}
-                onDateWindowChange={setDateWindow}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onExchangeChange={setExchange}
-            />
+            <AppHeader />
 
             {error ? <div className="notice">{error}</div> : null}
 
@@ -223,7 +151,7 @@ export function App() {
                     />
                 </div>
 
-                <SidePanel watchlist={watchlist} highestYield={highestYield} onSelectSymbol={setQuery} />
+                <SidePanel watchlist={watchlist} highestYield={highestYield} onSelectSymbol={promptForSymbol} />
             </section>
 
             {selectedDividend ? (
