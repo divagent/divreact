@@ -24,7 +24,6 @@ export function App() {
     const [watchlist, setWatchlist] = useState<string[]>(defaultWatchlist)
     const [dividends, setDividends] = useState<Dividend[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState('')
     const [aiPrompt, setAiPrompt] = useState(queryPresets[0])
     const [aiOutput, setAiOutput] = useState('Ask the AI Agent to interpret the current calendar and watchlist.')
     const [isAiStreaming, setIsAiStreaming] = useState(false)
@@ -34,7 +33,6 @@ export function App() {
 
         async function loadDividends() {
             setIsLoading(true)
-            setError('')
 
             try {
                 const nextDividends = await fetchDividends({
@@ -48,7 +46,6 @@ export function App() {
             } catch (fetchError) {
                 if (fetchError instanceof DOMException && fetchError.name === 'AbortError') return
 
-                setError('Live API unavailable. Showing sample dividend calendar data.')
                 setDividends(sampleDividends)
             } finally {
                 setIsLoading(false)
@@ -117,8 +114,6 @@ export function App() {
     return (
         <main className="app-shell" style={themeVars}>
             <AppHeader />
-
-            {error ? <div className="notice">{error}</div> : null}
 
             <section className="workspace-grid">
                 <div className="main-stack">
