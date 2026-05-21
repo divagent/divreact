@@ -145,25 +145,25 @@ export const spacing = {
 // ============================================
 
 export const typography = {
-    /** Display/Headline font - Manrope for editorial hooks */
+    /** Display/Headline font - clean financial UI stack */
     display: {
-        fontFamily: 'Manrope, sans-serif',
+        fontFamily: '"IBM Plex Sans", Arial, sans-serif',
         /** Large display - 3.5rem for big financial totals */
         lg: {
             fontSize: '3.5rem',   // 56px
             lineHeight: '1.2',
-            fontWeight: 700,
+            fontWeight: 600,
         },
         /** Medium display */
         md: {
             fontSize: '2.5rem',   // 40px
             lineHeight: '1.25',
-            fontWeight: 700,
+            fontWeight: 600,
         },
     },
-    /** Body/UI font - Inter for functional data */
+    /** Body/UI font - clean financial UI stack */
     body: {
-        fontFamily: 'Inter, sans-serif',
+        fontFamily: '"IBM Plex Sans", Arial, sans-serif',
         /** Large body text */
         lg: {
             fontSize: '1.125rem', // 18px
@@ -191,11 +191,11 @@ export const typography = {
     },
     /** Label text - uppercase tracking for form labels */
     label: {
-        fontFamily: 'Inter, sans-serif',
+        fontFamily: '"IBM Plex Sans", Arial, sans-serif',
         fontSize: '0.75rem',    // 12px
         lineHeight: '1.5',
         fontWeight: 500,
-        letterSpacing: '0.05em',
+        letterSpacing: '0',
         textTransform: 'uppercase' as const,
     },
 } as const;

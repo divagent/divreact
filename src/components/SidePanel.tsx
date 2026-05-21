@@ -13,7 +13,7 @@ export function SidePanel({
     <aside className="side-panel">
       <div>
         <p className="eyebrow">Saved symbols</p>
-        <h2>Watchlist</h2>
+        <h3>Watchlist</h3>
       </div>
       {watchlist.length ? (
         <div className="watchlist">

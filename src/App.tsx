@@ -9,7 +9,7 @@ import { SidePanel } from './components/SidePanel'
 import { defaultWatchlist, queryPresets, themeVars } from './config/app'
 import { sampleDividends } from './data/sampleDividends'
 import type { Dividend, SortDirection } from './types/dividend'
-import { filterAndSortDividends, getHighestYield, getNextPayment } from './utils/dividends'
+import { filterAndSortDividends, getHighestYield } from './utils/dividends'
 import { addDays } from './utils/formatters'
 
 export function App() {
@@ -66,9 +66,6 @@ export function App() {
 
     const totalPages = Math.max(1, Math.ceil(filteredDividends.length / pageSize))
     const pageDividends = filteredDividends.slice((page - 1) * pageSize, page * pageSize)
-    const visibleStart = filteredDividends.length ? (page - 1) * pageSize + 1 : 0
-    const visibleEnd = Math.min(page * pageSize, filteredDividends.length)
-    const nextPayment = getNextPayment(filteredDividends)
     const highestYield = getHighestYield(filteredDividends)
 
     function handleSort(nextKey: keyof Dividend) {
@@ -130,17 +127,11 @@ export function App() {
                         isLoading={isLoading}
                         sortKey={sortKey}
                         sortDirection={sortDirection}
-                        watchlist={watchlist}
                         page={page}
                         totalPages={totalPages}
                         pageSize={pageSize}
-                        visibleStart={visibleStart}
-                        visibleEnd={visibleEnd}
-                        totalCount={filteredDividends.length}
-                        nextPaymentSymbol={nextPayment?.symbol}
                         onOpen={setSelectedDividend}
                         onSort={handleSort}
-                        onToggleWatchlist={toggleWatchlist}
                         onPageChange={setPage}
                         onPageSizeChange={setPageSize}
                     />

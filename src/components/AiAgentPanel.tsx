@@ -1,4 +1,4 @@
-import { Loader2, Send, Sparkles, TrendingUp } from 'lucide-react'
+import { Loader2, Search, Send } from 'lucide-react'
 import { queryPresets } from '../config/app'
 
 export function AiAgentPanel({
@@ -25,7 +25,7 @@ export function AiAgentPanel({
                     onChange={(event) => onPromptChange(event.target.value)}
                 />
                 <div className="composer-actions">
-                    <Sparkles size={20} />
+                    <Search size={18} />
                     <button className="primary-button icon-only" type="button" onClick={onRun} disabled={isStreaming}>
                         {isStreaming ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
                     </button>
@@ -33,9 +33,8 @@ export function AiAgentPanel({
             </div>
 
             <div className="preset-row">
-                {queryPresets.map((preset, index) => (
-                    <button className={index === 0 ? 'featured-preset' : ''} key={preset} type="button" onClick={() => onPromptChange(preset)}>
-                        {index === 0 ? <TrendingUp size={20} /> : <Sparkles size={15} />}
+                {queryPresets.map((preset) => (
+                    <button key={preset} type="button" onClick={() => onPromptChange(preset)}>
                         {preset}
                     </button>
                 ))}
