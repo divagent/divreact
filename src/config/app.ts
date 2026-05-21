@@ -1,7 +1,9 @@
 import type React from 'react'
 import { theme } from '../assets/colors'
 
-export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+export const apiBaseUrl = import.meta.env.VITE_CORE_API ?? 'http://localhost:8000'
+export const adminUsername = import.meta.env.VITE_ADMIN_USERNAME ?? 'admin'
+export const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD ?? ''
 export const pageSizeOptions = [10, 25, 50]
 export const defaultWatchlist = ['MSFT', 'KO']
 
