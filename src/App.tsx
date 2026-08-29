@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { streamAiQuery } from './api/ai'
 import { fetchDividends } from './api/dividends'
+import { fetchTickerProfile, isLikelyTicker } from './api/ticker'
+import type { TickerProfile } from './types/ticker'
 import { AiAgentPanel } from './components/AiAgentPanel'
 import { AppHeader } from './components/AppHeader'
 import { DividendDrawer } from './components/DividendDrawer'
@@ -27,6 +29,8 @@ export function App() {
     const [aiPrompt, setAiPrompt] = useState(queryPresets[0])
     const [aiOutput, setAiOutput] = useState('Ask the AI Agent to interpret the current calendar and watchlist.')
     const [isAiStreaming, setIsAiStreaming] = useState(false)
+    const [tickerProfile, setTickerProfile] = useState<TickerProfile | null>(null)
+    const [isProfileLoading, setIsProfileLoading] = useState(false)
 
     useEffect(() => {
         const controller = new AbortController()
@@ -85,8 +89,27 @@ export function App() {
     }
 
     async function runAiQuery() {
-        if (!aiPrompt.trim() || isAiStreaming) return
+        const trimmed = aiPrompt.trim()
+        if (!trimmed || isAiStreaming || isProfileLoading) return
 
+        // A bare symbol (IBM, KO, BRK.B) becomes a ticker profile lookup; anything
+        // else is a natural-language question for the AI agent.
+        if (isLikelyTicker(trimmed)) {
+            setTickerProfile(null)
+            setIsProfileLoading(true)
+            const controller = new AbortController()
+            try {
+                setTickerProfile(await fetchTickerProfile(trimmed.toUpperCase(), controller.signal))
+            } catch (error) {
+                setTickerProfile(null)
+                setAiOutput(`Could not load profile for ${trimmed.toUpperCase()}: ${(error as Error).message}`)
+            } finally {
+                setIsProfileLoading(false)
+            }
+            return
+        }
+
+        setTickerProfile(null)
         setIsAiStreaming(true)
         setAiOutput('')
 
@@ -118,6 +141,8 @@ export function App() {
                         prompt={aiPrompt}
                         output={aiOutput}
                         isStreaming={isAiStreaming}
+                        profile={tickerProfile}
+                        isProfileLoading={isProfileLoading}
                         onPromptChange={setAiPrompt}
                         onRun={runAiQuery}
                     />

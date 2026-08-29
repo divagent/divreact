@@ -436,6 +436,127 @@ h2 {
     white-space: pre-wrap;
 }
 
+.ai-output-center {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    white-space: normal;
+}
+
+.ticker-profile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    display: grid;
+    gap: 16px;
+    min-height: 132px;
+    padding: 18px;
+}
+
+.ticker-profile-head {
+    align-items: flex-start;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.ticker-profile-head h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.ticker-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+.ticker-price {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.ticker-price-value {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.ticker-price-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.ticker-stats {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ticker-stat {
+    background: var(--section);
+    border: 1px solid var(--ghost);
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+}
+
+.ticker-stat-value {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.ticker-stat-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.ticker-section-label {
+    color: var(--muted);
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.ticker-next {
+    align-items: baseline;
+    border-top: 1px solid var(--divider);
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    padding-top: 14px;
+}
+
+.ticker-muted {
+    color: var(--faint);
+}
+
+.ticker-history ul {
+    display: grid;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ticker-history li {
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    font-size: 14px;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.ticker-history li:last-child {
+    border-bottom: none;
+}
+
 .table-header {
     border-bottom: 1px solid var(--divider);
     padding: 22px 24px 18px;

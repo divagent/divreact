@@ -1,16 +1,22 @@
 import { Loader2, Search, Send } from 'lucide-react'
 import { queryPresets } from '../config/app'
+import type { TickerProfile } from '../types/ticker'
+import { TickerProfileCard } from './TickerProfileCard'
 
 export function AiAgentPanel({
     prompt,
     output,
     isStreaming,
+    profile,
+    isProfileLoading,
     onPromptChange,
     onRun,
 }: {
     prompt: string
     output: string
     isStreaming: boolean
+    profile: TickerProfile | null
+    isProfileLoading: boolean
     onPromptChange: (value: string) => void
     onRun: () => void
 }) {
@@ -40,7 +46,15 @@ export function AiAgentPanel({
                 ))}
             </div>
 
-            <pre className="ai-output">{output}</pre>
+            {isProfileLoading ? (
+                <div className="ai-output ai-output-center">
+                    <Loader2 className="spin" size={18} /> Loading ticker profile…
+                </div>
+            ) : profile ? (
+                <TickerProfileCard profile={profile} />
+            ) : (
+                <pre className="ai-output">{output}</pre>
+            )}
         </section>
     )
 }
