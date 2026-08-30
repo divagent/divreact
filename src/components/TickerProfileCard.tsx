@@ -1,5 +1,6 @@
 import type { TickerProfile } from '../types/ticker'
 import { formatCurrency, formatDate, formatPercent } from '../utils/formatters'
+import { PredictDividendButton } from './PredictDividendButton'
 
 export function TickerProfileCard({ profile }: { profile: TickerProfile }) {
     return (
@@ -61,6 +62,8 @@ export function TickerProfileCard({ profile }: { profile: TickerProfile }) {
                     <span className="ticker-muted">No dividends in the last 12 months</span>
                 )}
             </div>
+
+            <PredictDividendButton symbol={profile.symbol} />
         </div>
     )
 }
