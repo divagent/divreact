@@ -26,14 +26,23 @@ type YahooChartResponse = {
   }
 }
 
+// quoteSummary date fields arrive as { raw: <unix seconds>, fmt: "yyyy-mm-dd" }
+// (Yahoo's default, unformatted responses can also send a bare number).
+type YahooDate = number | { raw?: number; fmt?: string }
+
 type YahooQuoteSummaryResponse = {
   quoteSummary: {
     result?: Array<{
       assetProfile?: { industry?: string; sector?: string }
-      calendarEvents?: { exDividendDate?: number; dividendDate?: number }
+      calendarEvents?: { exDividendDate?: YahooDate; dividendDate?: YahooDate }
     }>
     error?: unknown
   }
+}
+
+function yahooDateToIso(value: YahooDate | undefined): string | undefined {
+  const seconds = typeof value === 'object' ? value?.raw : value
+  return typeof seconds === 'number' && seconds > 0 ? toIsoDate(seconds) : undefined
 }
 
 const DAY = 86_400_000
@@ -56,10 +65,9 @@ async function loadIndustryAndNextExDate(symbol: string, signal: AbortSignal) {
     const result = payload.quoteSummary.result?.[0]
     if (!result) return {}
 
-    const exDividendDate = result.calendarEvents?.exDividendDate
     return {
       industry: result.assetProfile?.industry,
-      nextExDate: exDividendDate ? toIsoDate(exDividendDate) : undefined,
+      nextExDate: yahooDateToIso(result.calendarEvents?.exDividendDate),
     }
   } catch {
     return {}

@@ -15,9 +15,9 @@ export const dateWindowOptions = [
 ] as const
 
 export const queryPresets = [
-  'Which upcoming dividends have yield above 5%?',
-  'Summarize payment dates for my watchlist.',
-  'Find confirmed dividends this week.',
+  'IBM',
+  'T.TO',
+  'MSFT',
 ]
 
 type ThemeVars = React.CSSProperties & Record<`--${string}`, string>
