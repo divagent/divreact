@@ -2,7 +2,13 @@ import type { TickerProfile } from '../types/ticker'
 import { formatCurrency, formatDate, formatPercent } from '../utils/formatters'
 import { PredictDividendButton } from './PredictDividendButton'
 
-export function TickerProfileCard({ profile }: { profile: TickerProfile }) {
+export function TickerProfileCard({
+    profile,
+    onPredicted,
+}: {
+    profile: TickerProfile
+    onPredicted?: () => void
+}) {
     return (
         <div className="ticker-profile">
             <header className="ticker-profile-head">
@@ -63,7 +69,7 @@ export function TickerProfileCard({ profile }: { profile: TickerProfile }) {
                 )}
             </div>
 
-            <PredictDividendButton profile={profile} />
+            <PredictDividendButton profile={profile} onPredicted={onPredicted} />
         </div>
     )
 }

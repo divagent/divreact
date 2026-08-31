@@ -6,11 +6,11 @@ import type { TickerProfile } from './types/ticker'
 import { AiAgentPanel } from './components/AiAgentPanel'
 import { AppHeader } from './components/AppHeader'
 import { DividendDrawer } from './components/DividendDrawer'
-import { DividendTable } from './components/DividendTable'
+import { UpcomingCalendar } from './components/UpcomingCalendar'
 import { SidePanel } from './components/SidePanel'
 import { defaultWatchlist, queryPresets, themeVars } from './config/app'
 import { sampleDividends } from './data/sampleDividends'
-import type { Dividend, SortDirection } from './types/dividend'
+import type { Dividend } from './types/dividend'
 import { filterAndSortDividends, getHighestYield } from './utils/dividends'
 import { addDays } from './utils/formatters'
 
@@ -18,26 +18,22 @@ export function App() {
     const today = new Date().toISOString().slice(0, 10)
     const startDate = today
     const endDate = addDays(today, 7)
-    const [pageSize, setPageSize] = useState(10)
-    const [page, setPage] = useState(1)
-    const [sortKey, setSortKey] = useState<keyof Dividend>('exDividendDate')
-    const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
     const [selectedDividend, setSelectedDividend] = useState<Dividend | null>(null)
     const [watchlist, setWatchlist] = useState<string[]>(defaultWatchlist)
     const [dividends, setDividends] = useState<Dividend[]>([])
-    const [isLoading, setIsLoading] = useState(true)
     const [aiPrompt, setAiPrompt] = useState(queryPresets[0])
     const [aiOutput, setAiOutput] = useState('Ask the AI Agent to interpret the current calendar and watchlist.')
     const [isAiStreaming, setIsAiStreaming] = useState(false)
     const [tickerProfile, setTickerProfile] = useState<TickerProfile | null>(null)
     const [isProfileLoading, setIsProfileLoading] = useState(false)
+    const [calendarRefreshKey, setCalendarRefreshKey] = useState(0)
 
     useEffect(() => {
         const controller = new AbortController()
 
+        // Still fetched to feed the AI agent context and the side panel's
+        // "highest yield" — the main table is now the calendar (UpcomingCalendar).
         async function loadDividends() {
-            setIsLoading(true)
-
             try {
                 const nextDividends = await fetchDividends({
                     startDate,
@@ -51,8 +47,6 @@ export function App() {
                 if (fetchError instanceof DOMException && fetchError.name === 'AbortError') return
 
                 setDividends(sampleDividends)
-            } finally {
-                setIsLoading(false)
             }
         }
 
@@ -61,26 +55,12 @@ export function App() {
         return () => controller.abort()
     }, [startDate, endDate])
 
-    useEffect(() => setPage(1), [startDate, endDate, pageSize])
-
     const filteredDividends = useMemo(
-        () => filterAndSortDividends(dividends, '', 'all', sortKey, sortDirection),
-        [dividends, sortDirection, sortKey],
+        () => filterAndSortDividends(dividends, '', 'all', 'exDividendDate', 'asc'),
+        [dividends],
     )
 
-    const totalPages = Math.max(1, Math.ceil(filteredDividends.length / pageSize))
-    const pageDividends = filteredDividends.slice((page - 1) * pageSize, page * pageSize)
     const highestYield = getHighestYield(filteredDividends)
-
-    function handleSort(nextKey: keyof Dividend) {
-        if (sortKey === nextKey) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-            return
-        }
-
-        setSortKey(nextKey)
-        setSortDirection('asc')
-    }
 
     function toggleWatchlist(symbol: string) {
         setWatchlist((current) =>
@@ -145,21 +125,10 @@ export function App() {
                         isProfileLoading={isProfileLoading}
                         onPromptChange={setAiPrompt}
                         onRun={runAiQuery}
+                        onPredicted={() => setCalendarRefreshKey((key) => key + 1)}
                     />
 
-                    <DividendTable
-                        dividends={pageDividends}
-                        isLoading={isLoading}
-                        sortKey={sortKey}
-                        sortDirection={sortDirection}
-                        page={page}
-                        totalPages={totalPages}
-                        pageSize={pageSize}
-                        onOpen={setSelectedDividend}
-                        onSort={handleSort}
-                        onPageChange={setPage}
-                        onPageSizeChange={setPageSize}
-                    />
+                    <UpcomingCalendar days={30} refreshKey={calendarRefreshKey} />
                 </div>
 
                 <SidePanel watchlist={watchlist} highestYield={highestYield} onSelectSymbol={promptForSymbol} />

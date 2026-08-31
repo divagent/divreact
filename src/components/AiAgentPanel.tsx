@@ -11,6 +11,7 @@ export function AiAgentPanel({
     isProfileLoading,
     onPromptChange,
     onRun,
+    onPredicted,
 }: {
     prompt: string
     output: string
@@ -19,6 +20,7 @@ export function AiAgentPanel({
     isProfileLoading: boolean
     onPromptChange: (value: string) => void
     onRun: () => void
+    onPredicted?: () => void
 }) {
     const isPresetPrompt = queryPresets.includes(prompt)
 
@@ -51,7 +53,7 @@ export function AiAgentPanel({
                     <Loader2 className="spin" size={18} /> Loading ticker profile…
                 </div>
             ) : profile ? (
-                <TickerProfileCard profile={profile} />
+                <TickerProfileCard profile={profile} onPredicted={onPredicted} />
             ) : (
                 <pre className="ai-output">{output}</pre>
             )}

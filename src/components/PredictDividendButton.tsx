@@ -73,7 +73,13 @@ const DIRECTION_ARROW: Record<PredictDirection, string> = {
   constant: '→',
 }
 
-export function PredictDividendButton({ profile }: { profile: TickerProfile }) {
+export function PredictDividendButton({
+  profile,
+  onPredicted,
+}: {
+  profile: TickerProfile
+  onPredicted?: () => void
+}) {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<PredictResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -85,7 +91,10 @@ export function PredictDividendButton({ profile }: { profile: TickerProfile }) {
     setError(null)
     setResult(null)
     try {
-      setResult(await predictDividend(profile, { publishToCalendar: publish }))
+      const response = await predictDividend(profile, { publishToCalendar: publish })
+      setResult(response)
+      // Only ask the calendar to refresh when we actually wrote something.
+      if (response.calendar?.written?.length) onPredicted?.()
     } catch (runError) {
       setError((runError as Error).message)
     } finally {
