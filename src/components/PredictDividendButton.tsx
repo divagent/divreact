@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import { CalendarCheck, Loader2, Sparkles, TriangleAlert } from 'lucide-react'
-import { predictDividend, type PredictionResult } from '../api/predict'
+import { predictDividend, type PredictDirection, type PredictResponse } from '../api/predict'
+import type { TickerProfile } from '../types/ticker'
 import { formatCurrency, formatDate } from '../utils/formatters'
 
 // All styles are inline and width-constrained on purpose: this block must never
@@ -20,7 +21,9 @@ const wrap: CSSProperties = {
 const buttonRow: CSSProperties = {
   boxSizing: 'border-box',
   display: 'flex',
+  alignItems: 'center',
   justifyContent: 'flex-end',
+  gap: 12,
   maxWidth: '100%',
   minWidth: 0,
   width: '100%',
@@ -36,16 +39,45 @@ const resultBox: CSSProperties = {
   width: '100%',
 }
 
-const DIRECTION_ARROW: Record<PredictionResult['prediction']['direction'], string> = {
+const layerCard: CSSProperties = {
+  boxSizing: 'border-box',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+  padding: '10px 12px',
+  borderRadius: 'var(--radius-sm)',
+  background: 'var(--section)',
+  border: '1px solid var(--line)',
+  minWidth: 0,
+  maxWidth: '100%',
+}
+
+const layerLabel: CSSProperties = {
+  fontSize: 11,
+  textTransform: 'uppercase',
+  letterSpacing: 0.6,
+  color: 'var(--faint)',
+}
+
+const rowList: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2,
+  fontSize: 13,
+  minWidth: 0,
+}
+
+const DIRECTION_ARROW: Record<PredictDirection, string> = {
   up: '↑',
   down: '↓',
   constant: '→',
 }
 
-export function PredictDividendButton({ symbol }: { symbol: string }) {
+export function PredictDividendButton({ profile }: { profile: TickerProfile }) {
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<PredictionResult | null>(null)
+  const [result, setResult] = useState<PredictResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [publish, setPublish] = useState(true)
 
   async function run() {
     if (isLoading) return
@@ -53,7 +85,7 @@ export function PredictDividendButton({ symbol }: { symbol: string }) {
     setError(null)
     setResult(null)
     try {
-      setResult(await predictDividend(symbol))
+      setResult(await predictDividend(profile, { publishToCalendar: publish }))
     } catch (runError) {
       setError((runError as Error).message)
     } finally {
@@ -61,15 +93,16 @@ export function PredictDividendButton({ symbol }: { symbol: string }) {
     }
   }
 
-  const prediction = result?.prediction
-  const confidencePct = prediction ? Math.round(prediction.confidence * 100) : 0
-
   return (
     <div style={wrap}>
       <div style={buttonRow}>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--muted)', marginRight: 'auto' }}>
+          <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} disabled={isLoading} />
+          Publish to calendar
+        </label>
         <button className="primary-button" type="button" onClick={run} disabled={isLoading} style={{ maxWidth: '100%' }}>
           {isLoading ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />}
-          {isLoading ? 'Predicting…' : 'Predict & add to calendar'}
+          {isLoading ? 'Analyzing…' : publish ? 'Predict & add to calendar' : 'Predict (preview)'}
         </button>
       </div>
 
@@ -79,37 +112,89 @@ export function PredictDividendButton({ symbol }: { symbol: string }) {
         </div>
       ) : null}
 
-      {prediction ? (
-        <div style={resultBox}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 10, minWidth: 0 }}>
-            <strong style={{ fontSize: 20 }}>
-              {prediction.predicted_amount != null ? formatCurrency(prediction.predicted_amount) : 'Amount TBD'}
-            </strong>
-            <span style={{ fontSize: 14, textTransform: 'capitalize' }}>
-              {DIRECTION_ARROW[prediction.direction]} {prediction.direction}
-            </span>
-            <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 'auto' }}>
-              {confidencePct}% confidence
-            </span>
-          </div>
+      {result ? <PredictionLayers result={result} /> : null}
+    </div>
+  )
+}
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, fontSize: 13, color: 'var(--muted)', minWidth: 0 }}>
-            <span>Ex-date: {prediction.predicted_ex_date ? formatDate(prediction.predicted_ex_date) : '—'}</span>
-            {result?.published ? (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--success)' }}>
-                <CalendarCheck size={14} /> Published to calendar
-              </span>
-            ) : result?.publish_error ? (
-              <span style={{ color: 'var(--faint)' }}>Not published: {result.publish_error}</span>
-            ) : null}
-          </div>
+function PredictionLayers({ result }: { result: PredictResponse }) {
+  const { facts, pattern, research, calendar } = result
+  const confidencePct = Math.round((research?.confidence ?? 0) * 100)
+  const next = research?.predictedNext
 
-          {prediction.reasoning ? (
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.5, minWidth: 0, overflowWrap: 'anywhere' }}>
-              {prediction.reasoning}
-            </p>
-          ) : null}
+  return (
+    <div style={resultBox}>
+      {/* Layer 1 — confirmed facts */}
+      <div style={layerCard}>
+        <span style={layerLabel}>Facts · confirmed</span>
+        <div style={rowList}>
+          {facts.confirmed.map((event) => (
+            <div key={`fact-${event.exDate}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+              <span>{formatDate(event.exDate)}</span>
+              <span>{formatCurrency(event.amount)}</span>
+            </div>
+          ))}
         </div>
+        {facts.notes?.length ? (
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--muted)', overflowWrap: 'anywhere' }}>{facts.notes.join(' · ')}</p>
+        ) : null}
+      </div>
+
+      {/* Layer 2 — pattern estimate */}
+      <div style={layerCard}>
+        <span style={layerLabel}>Pattern · estimate</span>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, overflowWrap: 'anywhere' }}>{pattern.summary}</p>
+        {pattern.projected?.length ? (
+          <div style={rowList}>
+            {pattern.projected.map((event) => (
+              <div key={`est-${event.exDate}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: 'var(--muted)' }}>
+                <span>{formatDate(event.exDate)} · est.</span>
+                <span>{formatCurrency(event.amount)}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Layer 3 — research prediction */}
+      <div style={layerCard}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', minWidth: 0 }}>
+          <span style={layerLabel}>Research · prediction</span>
+          <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 'auto' }}>{confidencePct}% confidence</span>
+        </div>
+        {next ? (
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+            <strong style={{ fontSize: 18 }}>
+              {next.amount != null ? formatCurrency(next.amount) : 'Amount TBD'}
+            </strong>
+            <span style={{ fontSize: 13, textTransform: 'capitalize' }}>
+              {DIRECTION_ARROW[next.direction]} {next.direction}
+            </span>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>Ex-date: {next.exDate ? formatDate(next.exDate) : '—'}</span>
+          </div>
+        ) : null}
+        {research.reasoning ? (
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, overflowWrap: 'anywhere' }}>{research.reasoning}</p>
+        ) : null}
+        {research.sources?.length ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, fontSize: 12 }}>
+            {research.sources.map((src, i) => (
+              <a key={`src-${i}`} href={src.url} target="_blank" rel="noreferrer" style={{ color: 'var(--brand-dark)', overflowWrap: 'anywhere' }}>
+                {src.title || src.url}
+              </a>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Calendar write results */}
+      {calendar?.written?.length ? (
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--success)' }}>
+          <CalendarCheck size={14} /> {calendar.written.length} event{calendar.written.length === 1 ? '' : 's'} written to calendar
+        </div>
+      ) : null}
+      {calendar?.errors?.length ? (
+        <div style={{ fontSize: 12, color: 'var(--faint)' }}>Calendar issues: {calendar.errors.join('; ')}</div>
       ) : null}
     </div>
   )

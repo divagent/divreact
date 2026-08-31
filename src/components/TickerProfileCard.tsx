@@ -63,7 +63,7 @@ export function TickerProfileCard({ profile }: { profile: TickerProfile }) {
                 )}
             </div>
 
-            <PredictDividendButton symbol={profile.symbol} />
+            <PredictDividendButton profile={profile} />
         </div>
     )
 }
