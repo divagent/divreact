@@ -23,6 +23,9 @@ export type DividendAnalysis = {
   sources: AnalysisSource[]
   model?: string
   generatedAt?: string
+  // True when the agent found a declaration and silently corrected the public
+  // calendar (stale prediction -> declared fact). The UI refreshes on this.
+  corrected?: boolean
 }
 
 async function loadFacts(symbol: string, signal?: AbortSignal) {

@@ -56,7 +56,11 @@ export function App() {
 
         analyzeDividend(selectedCalendarItem, controller.signal)
             .then((result) => {
-                if (active) setAnalysis(result)
+                if (!active) return
+                setAnalysis(result)
+                // The agent found a declaration and corrected the calendar row in
+                // place — refresh the calendar so the corrected row shows now.
+                if (result.corrected) setCalendarRefreshKey((k) => k + 1)
             })
             .catch((error) => {
                 if (!active || (error instanceof DOMException && error.name === 'AbortError')) return
