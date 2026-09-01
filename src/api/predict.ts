@@ -12,6 +12,7 @@ export type PredictRequest = {
   asOf: string // ISO yyyy-mm-dd
   currency: string
   facts: {
+    companyName?: string
     price: number
     ttmAmount: number
     pastYearDividends: PredictFactDividend[]
@@ -103,6 +104,7 @@ export function buildPredictRequest(
     asOf: todayIso(),
     currency: profile.currency,
     facts: {
+      companyName: profile.companyName,
       price: profile.price,
       ttmAmount: profile.ttmAmount,
       pastYearDividends: profile.pastYearDividends.map((event) => ({
