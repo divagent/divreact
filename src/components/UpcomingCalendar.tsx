@@ -25,7 +25,20 @@ const pill = (kind: CalendarKind): CSSProperties => ({
   border: `1px solid ${KIND_COLOR[kind]}`,
 })
 
-export function UpcomingCalendar({ days = 30, refreshKey = 0 }: { days?: number; refreshKey?: number }) {
+export function UpcomingCalendar({
+  days = 30,
+  refreshKey = 0,
+  onSelect,
+  selectedKey,
+  forwardRates = {},
+}: {
+  days?: number
+  refreshKey?: number
+  onSelect?: (item: CalendarItem) => void
+  selectedKey?: string | null
+  // Forward yield (%) keyed by symbol, e.g. { IBM: 2.87 }.
+  forwardRates?: Record<string, number>
+}) {
   const [items, setItems] = useState<CalendarItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -83,32 +96,52 @@ export function UpcomingCalendar({ days = 30, refreshKey = 0 }: { days?: number;
                 <th>Ex-date</th>
                 <th>Symbol</th>
                 <th>Amount</th>
+                <th>Forward Rate</th>
                 <th>Type</th>
                 <th>Confidence</th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.googleEventId ?? `${item.symbol}-${item.exDate}`}>
-                  <td>{formatDate(item.exDate)}</td>
-                  <td>
-                    <strong>{item.symbol}</strong>
-                  </td>
-                  <td>{item.amount != null ? formatCurrency(item.amount) : '—'}</td>
-                  <td>
-                    <span style={pill(item.kind)}>{KIND_LABEL[item.kind]}</span>
-                  </td>
-                  <td>{item.kind === 'prediction' && item.confidence != null ? `${Math.round(item.confidence * 100)}%` : '—'}</td>
-                  <td>
-                    {item.htmlLink ? (
-                      <a href={item.htmlLink} target="_blank" rel="noreferrer" title="Open in Google Calendar" style={{ color: 'var(--muted)' }}>
-                        <ExternalLink size={14} />
-                      </a>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
+              {items.map((item) => {
+                const key = item.googleEventId ?? `${item.symbol}-${item.exDate}`
+                const rate = forwardRates[item.symbol.toUpperCase()]
+                return (
+                  <tr
+                    key={key}
+                    onClick={() => onSelect?.(item)}
+                    style={{
+                      cursor: onSelect ? 'pointer' : undefined,
+                      background: selectedKey === key ? 'rgba(242, 133, 0, 0.1)' : undefined,
+                    }}
+                  >
+                    <td>{formatDate(item.exDate)}</td>
+                    <td>
+                      <strong>{item.symbol}</strong>
+                    </td>
+                    <td>{item.amount != null ? formatCurrency(item.amount) : '—'}</td>
+                    <td>{rate != null ? `${rate.toFixed(1)}%` : '—'}</td>
+                    <td>
+                      <span style={pill(item.kind)}>{KIND_LABEL[item.kind]}</span>
+                    </td>
+                    <td>{item.kind === 'prediction' && item.confidence != null ? `${Math.round(item.confidence * 100)}%` : '—'}</td>
+                    <td>
+                      {item.htmlLink ? (
+                        <a
+                          href={item.htmlLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Open in Google Calendar"
+                          style={{ color: 'var(--muted)' }}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <ExternalLink size={14} />
+                        </a>
+                      ) : null}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

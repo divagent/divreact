@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { streamAiQuery } from './api/ai'
+import type { CalendarItem } from './api/calendar'
 import { fetchDividends } from './api/dividends'
 import { fetchTickerProfile, isLikelyTicker } from './api/ticker'
 import type { TickerProfile } from './types/ticker'
@@ -27,6 +28,11 @@ export function App() {
     const [tickerProfile, setTickerProfile] = useState<TickerProfile | null>(null)
     const [isProfileLoading, setIsProfileLoading] = useState(false)
     const [calendarRefreshKey, setCalendarRefreshKey] = useState(0)
+    const [selectedCalendarItem, setSelectedCalendarItem] = useState<CalendarItem | null>(null)
+
+    const selectedCalendarKey = selectedCalendarItem
+        ? selectedCalendarItem.googleEventId ?? `${selectedCalendarItem.symbol}-${selectedCalendarItem.exDate}`
+        : null
 
     useEffect(() => {
         const controller = new AbortController()
@@ -61,6 +67,15 @@ export function App() {
     )
 
     const highestYield = getHighestYield(filteredDividends)
+
+    // Forward yield (%) per symbol, fed to the calendar's "Forward Rate" column.
+    const forwardRates = useMemo(() => {
+        const map: Record<string, number> = {}
+        for (const dividend of filteredDividends) {
+            if (dividend.yield != null) map[dividend.symbol.toUpperCase()] = dividend.yield
+        }
+        return map
+    }, [filteredDividends])
 
     function toggleWatchlist(symbol: string) {
         setWatchlist((current) =>
@@ -128,10 +143,22 @@ export function App() {
                         onPredicted={() => setCalendarRefreshKey((key) => key + 1)}
                     />
 
-                    <UpcomingCalendar days={30} refreshKey={calendarRefreshKey} />
+                    <UpcomingCalendar
+                        days={30}
+                        refreshKey={calendarRefreshKey}
+                        onSelect={setSelectedCalendarItem}
+                        selectedKey={selectedCalendarKey}
+                        forwardRates={forwardRates}
+                    />
                 </div>
 
-                <SidePanel watchlist={watchlist} highestYield={highestYield} onSelectSymbol={promptForSymbol} />
+                <SidePanel
+                    watchlist={watchlist}
+                    highestYield={highestYield}
+                    onSelectSymbol={promptForSymbol}
+                    selectedItem={selectedCalendarItem}
+                    onClearSelection={() => setSelectedCalendarItem(null)}
+                />
             </section>
 
             {selectedDividend ? (

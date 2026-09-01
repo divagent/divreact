@@ -31,6 +31,12 @@ export function AiAgentPanel({
                     className={isPresetPrompt ? 'placeholder-prompt' : ''}
                     value={prompt}
                     onChange={(event) => onPromptChange(event.target.value)}
+                    onFocus={() => {
+                        // Treat a preset prompt like placeholder text: clear it on
+                        // click/focus so the user can type straight away.
+                        if (isPresetPrompt) onPromptChange('')
+                    }}
+                    placeholder="Ask about a ticker or the dividend calendar…"
                 />
                 <div className="composer-actions">
                     <Search size={18} />

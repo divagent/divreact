@@ -731,6 +731,51 @@ tbody tr:hover {
     top: 16px;
 }
 
+.agent-analysis {
+    background: var(--section);
+    border: 1px solid rgba(242, 133, 0, 0.42);
+    border-radius: var(--radius-md);
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+}
+
+.agent-analysis-head {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.agent-analysis-close {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    display: inline-flex;
+    padding: 2px;
+}
+
+.agent-analysis-body {
+    border-top: 1px solid var(--divider);
+    margin-top: 8px;
+    padding-top: 10px;
+}
+
+.agent-analysis-label {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+}
+
+.agent-analysis-placeholder {
+    color: var(--faint);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
 .watchlist {
     display: flex;
     flex-wrap: wrap;
