@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { streamAiQuery } from './api/ai'
+import { analyzeDividend, type DividendAnalysis } from './api/analyze'
 import type { CalendarItem } from './api/calendar'
 import { fetchDividends } from './api/dividends'
 import { fetchTickerProfile, isLikelyTicker } from './api/ticker'
@@ -29,10 +30,47 @@ export function App() {
     const [isProfileLoading, setIsProfileLoading] = useState(false)
     const [calendarRefreshKey, setCalendarRefreshKey] = useState(0)
     const [selectedCalendarItem, setSelectedCalendarItem] = useState<CalendarItem | null>(null)
+    const [analysis, setAnalysis] = useState<DividendAnalysis | null>(null)
+    const [analysisLoading, setAnalysisLoading] = useState(false)
+    const [analysisError, setAnalysisError] = useState<string | null>(null)
 
     const selectedCalendarKey = selectedCalendarItem
         ? selectedCalendarItem.googleEventId ?? `${selectedCalendarItem.symbol}-${selectedCalendarItem.exDate}`
         : null
+
+    // When a calendar row is selected, ask the backend's Gemini agent to analyze
+    // that specific dividend event and stream the reasoning into the side panel.
+    useEffect(() => {
+        if (!selectedCalendarItem) {
+            setAnalysis(null)
+            setAnalysisError(null)
+            setAnalysisLoading(false)
+            return
+        }
+
+        let active = true
+        const controller = new AbortController()
+        setAnalysis(null)
+        setAnalysisError(null)
+        setAnalysisLoading(true)
+
+        analyzeDividend(selectedCalendarItem, controller.signal)
+            .then((result) => {
+                if (active) setAnalysis(result)
+            })
+            .catch((error) => {
+                if (!active || (error instanceof DOMException && error.name === 'AbortError')) return
+                setAnalysisError((error as Error).message)
+            })
+            .finally(() => {
+                if (active) setAnalysisLoading(false)
+            })
+
+        return () => {
+            active = false
+            controller.abort()
+        }
+    }, [selectedCalendarKey])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -158,6 +196,9 @@ export function App() {
                     onSelectSymbol={promptForSymbol}
                     selectedItem={selectedCalendarItem}
                     onClearSelection={() => setSelectedCalendarItem(null)}
+                    analysis={analysis}
+                    analysisLoading={analysisLoading}
+                    analysisError={analysisError}
                 />
             </section>
 
