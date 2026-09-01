@@ -36,3 +36,4 @@
 
   "_backendStillTodo": "Backend (B:/divcore) still on the old contract: r_div_agent.py reads ?symbol query, age_predictor.py re-derives history from RAG and returns a flat single-verdict shape. Needs the JSON body request model + 3-layer response (facts/pattern/research/calendar). Next per agreed sequencing (frontend first)."
 }
+
