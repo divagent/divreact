@@ -314,9 +314,9 @@ h2 {
 }
 
 .preset-row {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: 10px 0 12px;
 }
 
@@ -943,8 +943,8 @@ tbody tr:hover {
         width: 100%;
     }
 
-    .preset-row {
-        grid-template-columns: 1fr;
+    .preset-row button {
+        flex: 1 1 100%;
     }
 
     th,

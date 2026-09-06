@@ -43,6 +43,12 @@ export function UpcomingCalendar({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // The close date the forward yields were computed against (most recent stamped).
+  const priceAsOf = items.reduce<string | null>(
+    (latest, item) => (item.priceAsOf && (!latest || item.priceAsOf > latest) ? item.priceAsOf : latest),
+    null,
+  )
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -74,6 +80,7 @@ export function UpcomingCalendar({
           <h2>Upcoming dividends</h2>
           <p className="ticker-sub" style={{ margin: 0 }}>
             From the calendar · next {days} days
+            {priceAsOf ? ` · forward yield priced ${formatDate(priceAsOf)}` : ''}
           </p>
         </div>
       </div>
@@ -96,7 +103,7 @@ export function UpcomingCalendar({
                 <th>Ex-date</th>
                 <th>Symbol</th>
                 <th>Amount</th>
-                <th>Forward Rate</th>
+                <th>Forward Yield</th>
                 <th>Type</th>
                 <th>Confidence</th>
                 <th />
@@ -105,7 +112,8 @@ export function UpcomingCalendar({
             <tbody>
               {items.map((item) => {
                 const key = item.googleEventId ?? `${item.symbol}-${item.exDate}`
-                const rate = forwardRates[item.symbol.toUpperCase()]
+                // Prefer the per-event cached forward yield; fall back to the map.
+                const rate = item.forwardYield ?? forwardRates[item.symbol.toUpperCase()]
                 return (
                   <tr
                     key={key}

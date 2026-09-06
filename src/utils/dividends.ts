@@ -5,8 +5,9 @@ export function normalizeDividends(payload: DividendApiResponse): Dividend[] {
 
   return rows.map((row) => ({
     symbol: String(row.symbol ?? '').toUpperCase(),
-    companyName: String(row.companyName ?? row.company_name ?? row.company ?? 'Unknown company'),
-    exDividendDate: String(row.exDividendDate ?? row.ex_date ?? ''),
+    // The calendar event carries no company name; fall back to its summary.
+    companyName: String(row.companyName ?? row.company_name ?? row.company ?? row.summary ?? 'Unknown company'),
+    exDividendDate: String(row.exDividendDate ?? row.exDate ?? row.ex_date ?? ''),
     recordDate: row.recordDate ?? row.record_date,
     paymentDate: row.paymentDate ?? row.payment_date,
     declarationDate: row.declarationDate ?? row.declaration_date,
@@ -14,7 +15,8 @@ export function normalizeDividends(payload: DividendApiResponse): Dividend[] {
     yield: row.yield ?? row.dividend_yield,
     frequency: row.frequency,
     exchange: row.exchange,
-    status: row.status,
+    // Calendar rows label the layer they came from (fact / estimate / prediction).
+    status: row.status ?? row.kind,
   }))
 }
 

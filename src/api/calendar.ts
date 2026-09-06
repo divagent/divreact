@@ -15,6 +15,12 @@ export type CalendarItem = {
   summary: string
   googleEventId: string | null
   htmlLink: string | null
+  // Forward dividend yield (%) vs. the previous close, cached per-day on the
+  // calendar event. price/priceAsOf record the close it was computed from.
+  forwardRate: number | null
+  forwardYield: number | null
+  price: number | null
+  priceAsOf: string | null
 }
 
 export type UpcomingCalendar = {

@@ -22,6 +22,13 @@ export type ApiDividend = Partial<Dividend> & {
   dividend?: number
   dividend_amount?: number
   dividend_yield?: number
+  // Google Calendar MCP event shape (current /div_show/list source of truth).
+  exDate?: string
+  kind?: string
+  confidence?: number
+  summary?: string
+  googleEventId?: string
+  htmlLink?: string
 }
 
 export type DividendApiResponse = ApiDividend[] | { data?: ApiDividend[]; results?: ApiDividend[]; items?: ApiDividend[] }

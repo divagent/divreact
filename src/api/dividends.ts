@@ -10,16 +10,22 @@ export type DividendQuery = {
     signal: AbortSignal
 }
 
-export async function fetchDividends({ startDate, endDate, query, exchange, signal }: DividendQuery) {
+// The backend's /div_show/list is now backed by the Google Calendar MCP adapter,
+// which takes a window as day offsets around *today* (`back`/`ahead`) rather than
+// absolute dates, and no longer filters server-side. Search/exchange filtering
+// happens client-side in filterAndSortDividends, so we only translate the window.
+function daysFromToday(dateString: string) {
+    const today = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00').getTime()
+    const target = new Date(`${dateString}T00:00:00`).getTime()
+    return Math.round((target - today) / 86_400_000)
+}
+
+export async function fetchDividends({ startDate, endDate, signal }: DividendQuery) {
     const url = new URL('/div_show/list', apiBaseUrl)
     url.search = new URLSearchParams({
-        start_date: startDate,
-        end_date: endDate,
-        limit: '200',
+        back: String(Math.max(0, -daysFromToday(startDate))),
+        ahead: String(Math.max(0, daysFromToday(endDate))),
     }).toString()
-
-    if (query.trim()) url.searchParams.set('search', query.trim())
-    if (exchange !== 'all') url.searchParams.set('exchange', exchange)
 
     const headers = new Headers()
     if (adminPassword) {

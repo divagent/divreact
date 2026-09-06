@@ -17,6 +17,7 @@ export const dateWindowOptions = [
 export const queryPresets = [
   'IBM',
   'T.TO',
+  'AAPL',
   'MSFT',
 ]
 
