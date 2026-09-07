@@ -128,7 +128,18 @@ export function UpcomingCalendar({
                       <strong>{item.symbol}</strong>
                     </td>
                     <td>{item.amount != null ? formatCurrency(item.amount) : '—'}</td>
-                    <td>{rate != null ? `${rate.toFixed(1)}%` : '—'}</td>
+                    <td>
+                      {rate != null ? (
+                        <>
+                          {rate.toFixed(1)}%
+                          {item.price != null ? (
+                            <span style={{ color: 'var(--muted)' }}> / {formatCurrency(item.price)}</span>
+                          ) : null}
+                        </>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
                     <td>
                       <span style={pill(item.kind)}>{KIND_LABEL[item.kind]}</span>
                     </td>

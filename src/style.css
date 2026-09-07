@@ -618,7 +618,7 @@ th {
     color: var(--text);
     font-size: 13px;
     font-weight: 550;
-    letter-spacing: 10;
+    letter-spacing: normal;
     line-height: 1.2;
     text-transform: uppercase;
 }
@@ -738,6 +738,18 @@ tbody tr:hover {
     display: grid;
     gap: 6px;
     padding: 16px;
+    font-size: 13px;
+}
+
+.agent-analysis h3 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.agent-analysis-body p {
+    font-size: 13px;
+    line-height: 1.55;
 }
 
 .agent-analysis-head {
