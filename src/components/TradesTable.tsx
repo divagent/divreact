@@ -20,7 +20,6 @@ const statusPill = (status: TradeRow['status']): CSSProperties => ({
 })
 
 const cellInput: CSSProperties = {
-  width: '100%',
   minWidth: 0,
   background: 'transparent',
   border: '1px solid transparent',
@@ -82,7 +81,13 @@ function EditCell({
         if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
         if (e.key === 'Escape') setDraft(initial)
       }}
-      style={money || type === 'number' ? { ...cellInput, textAlign: 'right' } : cellInput}
+      style={{
+        ...cellInput,
+        // Fixed per-type widths so number columns stay compact instead of
+        // stretching to fill the row (the cause of the sparse look).
+        width: type === 'date' ? 120 : money || type === 'number' ? 92 : 150,
+        textAlign: money || type === 'number' ? 'right' : 'left',
+      }}
     />
   )
 }
@@ -138,9 +143,8 @@ export function TradesTable() {
     }
   }
 
-  // Text "" -> null; numeric "" -> null, else Number. asInt rounds to whole shares.
+  // Text "" -> null; numeric "" -> null, else Number.
   const asNum = (raw: string) => (raw.trim() === '' ? null : Number(raw))
-  const asInt = (raw: string) => (raw.trim() === '' ? null : Math.round(Number(raw)))
   const asText = (raw: string) => (raw.trim() === '' ? null : raw)
 
   return (
@@ -190,7 +194,7 @@ export function TradesTable() {
               <tr>
                 <th>Ticker</th>
                 <th>Payment</th>
-                <th style={{ textAlign: 'right' }}>Qty</th>
+                <th style={{ textAlign: 'right' }}>Amount</th>
                 <th style={{ textAlign: 'right' }}>Buy $</th>
                 <th style={{ textAlign: 'right' }}>Sell $</th>
                 <th style={{ textAlign: 'right' }}>Dividend $</th>
@@ -204,7 +208,7 @@ export function TradesTable() {
                 <tr key={r.id} style={{ opacity: savingId === r.id ? 0.6 : 1 }}>
                   <td><strong>{r.ticker}</strong></td>
                   <td><EditCell value={r.paymentDate} type="date" onCommit={(v) => save(r.id, { paymentDate: asText(v) })} /></td>
-                  <td><EditCell value={r.quantity} type="number" onCommit={(v) => save(r.id, { quantity: asInt(v) })} /></td>
+                  <td style={{ textAlign: 'right' }}>{r.amount == null ? '—' : formatCurrency(r.amount)}</td>
                   <td><EditCell value={r.purchaseAmount} type="number" money onCommit={(v) => save(r.id, { purchaseAmount: asNum(v) })} /></td>
                   <td><EditCell value={r.sellAmount} type="number" money onCommit={(v) => save(r.id, { sellAmount: asNum(v) })} /></td>
                   <td><EditCell value={r.dividendAmount} type="number" money onCommit={(v) => save(r.id, { dividendAmount: asNum(v) })} /></td>
