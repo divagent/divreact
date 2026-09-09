@@ -90,9 +90,8 @@ facts, so the backend never has to re-fetch them and the facts stay authoritativ
 
   "calendar": {
     "written": [
-      { "exDate": "2026-08-10", "kind": "fact",       "googleEventId": "abc123", "status": "created" },
-      { "exDate": "2026-11-10", "kind": "estimate",   "googleEventId": "def456", "status": "created" },
-      { "exDate": "2026-11-10", "kind": "prediction", "googleEventId": "ghi789", "status": "created" }
+      { "exDate": "2026-08-10", "divstatus": "Confirmed",  "googleEventId": "abc123", "status": "created" },
+      { "exDate": "2026-11-10", "divstatus": "Prediction", "googleEventId": "ghi789", "status": "created" }
     ],
     "errors": []
   }
@@ -110,9 +109,10 @@ facts, so the backend never has to re-fetch them and the facts stay authoritativ
   too little history, mid-stream cut) — in that case `projected` MAY be empty.
 - `research` is layer 3: `willMaintainPattern`, `confidence` (0..1), `reasoning`,
   and `sources[]` with resolvable URLs. `direction`: `up | down | constant`.
-- `calendar.kind`: `fact | estimate | prediction` → drives the event title/color
-  (`IBM $1.69 (confirmed)`, `… (estimate)`, `… (prediction 82%)`). Writes are
-  idempotent — dedupe by `(symbol, exDate, kind)`, so re-running updates in place.
+- `calendar.divstatus`: `Confirmed | Prediction` → drives the event title/color
+  (`IBM $1.69 (confirmed)`, `… (prediction 82%)`). A pattern estimate is published
+  as `Prediction` too (it's an unconfirmed guess). Writes are idempotent — deduped
+  by `(symbol, exDate)`, so re-running updates the event on that date in place.
 - `publishToCalendar: false` → return all layers but write nothing (preview mode).
 
 ---

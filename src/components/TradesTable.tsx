@@ -188,7 +188,7 @@ export function TradesTable() {
           <table className="trades-table">
             <thead>
               <tr>
-                <th>Symbol</th>
+                <th>Ticker</th>
                 <th>Payment</th>
                 <th style={{ textAlign: 'right' }}>Qty</th>
                 <th style={{ textAlign: 'right' }}>Buy $</th>
@@ -202,7 +202,7 @@ export function TradesTable() {
             <tbody>
               {visible.map((r) => (
                 <tr key={r.id} style={{ opacity: savingId === r.id ? 0.6 : 1 }}>
-                  <td><strong>{r.symbol}</strong></td>
+                  <td><strong>{r.ticker}</strong></td>
                   <td><EditCell value={r.paymentDate} type="date" onCommit={(v) => save(r.id, { paymentDate: asText(v) })} /></td>
                   <td><EditCell value={r.quantity} type="number" onCommit={(v) => save(r.id, { quantity: asInt(v) })} /></td>
                   <td><EditCell value={r.purchaseAmount} type="number" money onCommit={(v) => save(r.id, { purchaseAmount: asNum(v) })} /></td>

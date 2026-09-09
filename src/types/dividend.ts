@@ -1,5 +1,5 @@
 export type Dividend = {
-  symbol: string
+  ticker: string
   companyName: string
   exDividendDate: string
   recordDate?: string
@@ -24,7 +24,7 @@ export type ApiDividend = Partial<Dividend> & {
   dividend_yield?: number
   // Google Calendar MCP event shape (current /div_show/list source of truth).
   exDate?: string
-  kind?: string
+  divstatus?: string
   confidence?: number
   summary?: string
   googleEventId?: string

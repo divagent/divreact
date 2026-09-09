@@ -37,7 +37,7 @@ export function App() {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'trades'>('upcoming')
 
     const selectedCalendarKey = selectedCalendarItem
-        ? selectedCalendarItem.googleEventId ?? `${selectedCalendarItem.symbol}-${selectedCalendarItem.exDate}`
+        ? selectedCalendarItem.googleEventId ?? `${selectedCalendarItem.ticker}-${selectedCalendarItem.exDate}`
         : null
 
     // When a calendar row is selected, ask the backend's Gemini agent to analyze
@@ -116,7 +116,7 @@ export function App() {
     const forwardRates = useMemo(() => {
         const map: Record<string, number> = {}
         for (const dividend of filteredDividends) {
-            if (dividend.yield != null) map[dividend.symbol.toUpperCase()] = dividend.yield
+            if (dividend.yield != null) map[dividend.ticker.toUpperCase()] = dividend.yield
         }
         return map
     }, [filteredDividends])
@@ -236,7 +236,7 @@ export function App() {
             {selectedDividend ? (
                 <DividendDrawer
                     dividend={selectedDividend}
-                    isWatched={watchlist.includes(selectedDividend.symbol)}
+                    isWatched={watchlist.includes(selectedDividend.ticker)}
                     onClose={() => setSelectedDividend(null)}
                     onToggleWatchlist={toggleWatchlist}
                 />

@@ -22,10 +22,10 @@ export function DividendDrawer({
         </button>
         <p className="eyebrow">{dividend.exchange ?? 'Market'} dividend</p>
         <h2>
-          {dividend.symbol}
+          {dividend.ticker}
           <span>{dividend.companyName}</span>
         </h2>
-        <button className="primary-button full" type="button" onClick={() => onToggleWatchlist(dividend.symbol)}>
+        <button className="primary-button full" type="button" onClick={() => onToggleWatchlist(dividend.ticker)}>
           <Star size={18} />
           {isWatched ? 'Remove from watchlist' : 'Add to watchlist'}
         </button>

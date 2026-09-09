@@ -55,16 +55,16 @@ async function streamFallbackAnswer(
 ) {
   const highYield = dividends.filter((dividend) => Number(dividend.yield ?? 0) >= 5)
   const confirmed = dividends.filter((dividend) => dividend.status === 'Confirmed')
-  const watched = dividends.filter((dividend) => watchlist.includes(dividend.symbol))
+  const watched = dividends.filter((dividend) => watchlist.includes(dividend.ticker))
   const answer = [
     `Query: ${prompt}`,
     '',
     `I found ${dividends.length} dividend events in the current view. ${confirmed.length} are confirmed and ${highYield.length} are above 5% yield.`,
     watched.length
-      ? `Watchlist overlap: ${watched.map((dividend) => dividend.symbol).join(', ')}.`
+      ? `Watchlist overlap: ${watched.map((dividend) => dividend.ticker).join(', ')}.`
       : 'No current rows match the saved watchlist.',
     highYield[0]
-      ? `Top yield signal: ${highYield[0].symbol} at ${formatPercent(highYield[0].yield)}, paying ${formatCurrency(highYield[0].amount)}.`
+      ? `Top yield signal: ${highYield[0].ticker} at ${formatPercent(highYield[0].yield)}, paying ${formatCurrency(highYield[0].amount)}.`
       : 'No high-yield dividend signal is visible in this filter set.',
     '',
     'Backend note: connect POST /ai/query with a streaming response to replace this local analysis.',

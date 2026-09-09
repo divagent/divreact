@@ -100,7 +100,7 @@ function Rows({
             <table>
                 <thead>
                     <tr>
-                        <SortableTh label="Symbol" sortKey="symbol" activeKey={sortKey} direction={sortDirection} onSort={onSort} />
+                        <SortableTh label="Ticker" sortKey="ticker" activeKey={sortKey} direction={sortDirection} onSort={onSort} />
                         <SortableTh label="Company" sortKey="companyName" activeKey={sortKey} direction={sortDirection} onSort={onSort} />
                         <SortableTh label="Ex-date" sortKey="exDividendDate" activeKey={sortKey} direction={sortDirection} onSort={onSort} />
                         <th>Record</th>
@@ -112,10 +112,10 @@ function Rows({
                 </thead>
                 <tbody>
                     {dividends.map((dividend) => (
-                        <tr key={`${dividend.symbol}-${dividend.exDividendDate}`} onClick={() => onOpen(dividend)}>
+                        <tr key={`${dividend.ticker}-${dividend.exDividendDate}`} onClick={() => onOpen(dividend)}>
                             <td>
                                 <div className="symbol-cell">
-                                    <strong>{dividend.symbol}</strong>
+                                    <strong>{dividend.ticker}</strong>
                                 </div>
                             </td>
                             <td className="company-cell">{dividend.companyName}</td>

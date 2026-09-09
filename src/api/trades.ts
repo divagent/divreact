@@ -8,8 +8,10 @@ export type TradeStatus = 'open' | 'closed' | 'untraded'
 
 export type TradeRow = {
   id: string
-  symbol: string
+  ticker: string
   name: string | null
+  // Firmness of the underlying tick from the calendar: Confirmed | Prediction.
+  divstatus: string | null
   exDate: string | null
   paymentDate: string | null
   quantity: number | null
@@ -64,12 +66,13 @@ export async function fetchTrades(
   return data.items ?? []
 }
 
-// Adds a calendar tick to the Trades tab. Idempotent on (symbol, exDate) —
+// Adds a calendar tick to the Trades tab. Idempotent on (ticker, exDate) —
 // re-adding an existing row returns it untouched.
 export type TradeInsert = {
-  symbol: string
+  ticker: string
   exDate: string
   amount?: number | null
+  divstatus?: string | null
   confidence?: number | null
   paymentDate?: string | null
   companyName?: string | null

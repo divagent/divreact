@@ -2,7 +2,7 @@ import type { Dividend } from '../types/dividend'
 
 export const sampleDividends: Dividend[] = [
   {
-    symbol: 'MSFT',
+    ticker: 'MSFT',
     companyName: 'Microsoft Corporation',
     exDividendDate: '2026-05-20',
     recordDate: '2026-05-21',
@@ -15,7 +15,7 @@ export const sampleDividends: Dividend[] = [
     status: 'Confirmed',
   },
   {
-    symbol: 'JPM',
+    ticker: 'JPM',
     companyName: 'JPMorgan Chase & Co.',
     exDividendDate: '2026-05-21',
     recordDate: '2026-05-22',
@@ -28,7 +28,7 @@ export const sampleDividends: Dividend[] = [
     status: 'Confirmed',
   },
   {
-    symbol: 'KO',
+    ticker: 'KO',
     companyName: 'The Coca-Cola Company',
     exDividendDate: '2026-05-23',
     recordDate: '2026-05-26',
@@ -41,7 +41,7 @@ export const sampleDividends: Dividend[] = [
     status: 'Estimated',
   },
   {
-    symbol: 'T',
+    ticker: 'T',
     companyName: 'AT&T Inc.',
     exDividendDate: '2026-05-24',
     recordDate: '2026-05-27',
@@ -54,7 +54,7 @@ export const sampleDividends: Dividend[] = [
     status: 'Confirmed',
   },
   {
-    symbol: 'AAPL',
+    ticker: 'AAPL',
     companyName: 'Apple Inc.',
     exDividendDate: '2026-05-28',
     recordDate: '2026-05-29',
@@ -67,7 +67,7 @@ export const sampleDividends: Dividend[] = [
     status: 'Confirmed',
   },
   {
-    symbol: 'VZ',
+    ticker: 'VZ',
     companyName: 'Verizon Communications Inc.',
     exDividendDate: '2026-05-29',
     recordDate: '2026-06-01',

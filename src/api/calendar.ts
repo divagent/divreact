@@ -4,13 +4,13 @@ import { adminPassword, adminUsername, apiBaseUrl } from '../config/app'
 // (the same events the Predict button writes). Backed by
 // GET {VITE_CORE_API}/div_agent/calendar_upcoming?days=30.
 
-export type CalendarKind = 'fact' | 'estimate' | 'prediction'
+export type DivStatus = 'Confirmed' | 'Prediction'
 
 export type CalendarItem = {
   exDate: string
-  symbol: string
+  ticker: string
   amount: number | null
-  kind: CalendarKind
+  divstatus: DivStatus
   confidence: number | null
   // Pay date — present only once the dividend is declared (from reconcile).
   paymentDate: string | null

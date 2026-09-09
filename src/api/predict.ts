@@ -8,7 +8,7 @@ import type { TickerProfile } from '../types/ticker'
 export type PredictFactDividend = { exDate: string; amount: number }
 
 export type PredictRequest = {
-  symbol: string
+  ticker: string
   asOf: string // ISO yyyy-mm-dd
   currency: string
   facts: {
@@ -67,7 +67,7 @@ export type ResearchLayer = {
 
 export type CalendarWrite = {
   exDate: string
-  kind: 'fact' | 'estimate' | 'prediction'
+  divstatus: 'Confirmed' | 'Prediction'
   googleEventId: string | null
   status: string
 }
@@ -78,7 +78,7 @@ export type CalendarLayer = {
 }
 
 export type PredictResponse = {
-  symbol: string
+  ticker: string
   asOf: string
   currency: string
   facts: FactsLayer
@@ -100,7 +100,7 @@ export function buildPredictRequest(
   publishToCalendar: boolean,
 ): PredictRequest {
   return {
-    symbol: profile.symbol.trim().toUpperCase(),
+    ticker: profile.symbol.trim().toUpperCase(),
     asOf: todayIso(),
     currency: profile.currency,
     facts: {

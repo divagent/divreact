@@ -1,29 +1,22 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { CalendarDays, Check, ExternalLink, ListPlus, Loader2, TriangleAlert } from 'lucide-react'
-import { fetchUpcomingCalendar, type CalendarItem, type CalendarKind } from '../api/calendar'
+import { fetchUpcomingCalendar, type CalendarItem, type DivStatus } from '../api/calendar'
 import { insertTrade } from '../api/trades'
 import { formatCurrency, formatDate } from '../utils/formatters'
 
-const KIND_LABEL: Record<CalendarKind, string> = {
-  fact: 'Confirmed',
-  estimate: 'Estimate',
-  prediction: 'Prediction',
+const STATUS_COLOR: Record<DivStatus, string> = {
+  Confirmed: 'var(--success)',
+  Prediction: 'var(--brand-dark)',
 }
 
-const KIND_COLOR: Record<CalendarKind, string> = {
-  fact: 'var(--success)',
-  estimate: 'var(--muted)',
-  prediction: 'var(--brand-dark)',
-}
-
-const pill = (kind: CalendarKind): CSSProperties => ({
+const pill = (divstatus: DivStatus): CSSProperties => ({
   display: 'inline-block',
   padding: '2px 8px',
   borderRadius: 999,
   fontSize: 12,
   fontWeight: 600,
-  color: KIND_COLOR[kind],
-  border: `1px solid ${KIND_COLOR[kind]}`,
+  color: STATUS_COLOR[divstatus],
+  border: `1px solid ${STATUS_COLOR[divstatus]}`,
 })
 
 export function UpcomingCalendar({
@@ -51,9 +44,10 @@ export function UpcomingCalendar({
     setAddingKey(key)
     try {
       await insertTrade({
-        symbol: item.symbol,
+        ticker: item.ticker,
         exDate: item.exDate,
         amount: item.amount,
+        divstatus: item.divstatus,
         confidence: item.confidence,
         paymentDate: item.paymentDate,
         googleEventId: item.googleEventId,
@@ -124,19 +118,19 @@ export function UpcomingCalendar({
             <thead>
               <tr>
                 <th>Ex-date</th>
-                <th>Symbol</th>
+                <th>Ticker</th>
                 <th>Amount</th>
                 <th>Forward Yield</th>
-                <th>Type</th>
+                <th>Status</th>
                 <th>Confidence</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {items.map((item) => {
-                const key = item.googleEventId ?? `${item.symbol}-${item.exDate}`
+                const key = item.googleEventId ?? `${item.ticker}-${item.exDate}`
                 // Prefer the per-event cached forward yield; fall back to the map.
-                const rate = item.forwardYield ?? forwardRates[item.symbol.toUpperCase()]
+                const rate = item.forwardYield ?? forwardRates[item.ticker.toUpperCase()]
                 return (
                   <tr
                     key={key}
@@ -148,7 +142,7 @@ export function UpcomingCalendar({
                   >
                     <td>{formatDate(item.exDate)}</td>
                     <td>
-                      <strong>{item.symbol}</strong>
+                      <strong>{item.ticker}</strong>
                     </td>
                     <td>{item.amount != null ? formatCurrency(item.amount) : '—'}</td>
                     <td>
@@ -164,9 +158,9 @@ export function UpcomingCalendar({
                       )}
                     </td>
                     <td>
-                      <span style={pill(item.kind)}>{KIND_LABEL[item.kind]}</span>
+                      <span style={pill(item.divstatus)}>{item.divstatus}</span>
                     </td>
-                    <td>{item.kind === 'prediction' && item.confidence != null ? `${Math.round(item.confidence * 100)}%` : '—'}</td>
+                    <td>{item.divstatus === 'Prediction' && item.confidence != null ? `${Math.round(item.confidence * 100)}%` : '—'}</td>
                     <td>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
                         <button

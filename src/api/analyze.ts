@@ -15,7 +15,7 @@ export type AnalysisSource = { title: string; url: string }
 export type RiskLabel = 'low' | 'medium' | 'high' | 'unknown'
 
 export type DividendAnalysis = {
-  symbol: string
+  ticker: string
   exDate: string | null
   headline: string
   reasoning: string
@@ -57,13 +57,13 @@ export async function analyzeDividend(
     headers.set('Authorization', `Basic ${btoa(`${adminUsername}:${adminPassword}`)}`)
   }
 
-  const facts = await loadFacts(item.symbol, signal)
+  const facts = await loadFacts(item.ticker, signal)
 
   const body = {
-    symbol: item.symbol,
+    ticker: item.ticker,
     exDate: item.exDate,
     amount: item.amount,
-    kind: item.kind,
+    divstatus: item.divstatus,
     confidence: item.confidence,
     summary: item.summary,
     facts,

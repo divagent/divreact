@@ -4,7 +4,7 @@ export function normalizeDividends(payload: DividendApiResponse): Dividend[] {
   const rows: ApiDividend[] = Array.isArray(payload) ? payload : payload.data ?? payload.results ?? payload.items ?? []
 
   return rows.map((row) => ({
-    symbol: String(row.symbol ?? '').toUpperCase(),
+    ticker: String(row.ticker ?? '').toUpperCase(),
     // The calendar event carries no company name; fall back to its summary.
     companyName: String(row.companyName ?? row.company_name ?? row.company ?? row.summary ?? 'Unknown company'),
     exDividendDate: String(row.exDividendDate ?? row.exDate ?? row.ex_date ?? ''),
@@ -15,8 +15,8 @@ export function normalizeDividends(payload: DividendApiResponse): Dividend[] {
     yield: row.yield ?? row.dividend_yield,
     frequency: row.frequency,
     exchange: row.exchange,
-    // Calendar rows label the layer they came from (fact / estimate / prediction).
-    status: row.status ?? row.kind,
+    // Calendar rows label how firm they are: Confirmed | Prediction.
+    status: row.status ?? row.divstatus,
   }))
 }
 
@@ -33,7 +33,7 @@ export function filterAndSortDividends(
     .filter((dividend) => {
       const matchesQuery =
         !normalizedQuery ||
-        dividend.symbol.toLowerCase().includes(normalizedQuery) ||
+        dividend.ticker.toLowerCase().includes(normalizedQuery) ||
         dividend.companyName.toLowerCase().includes(normalizedQuery)
       const matchesExchange = exchange === 'all' || dividend.exchange === exchange
 

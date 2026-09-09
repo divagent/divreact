@@ -46,7 +46,7 @@ export function SidePanel({
             ) : null}
           </div>
 
-          <h3 style={{ margin: '2px 0 0' }}>{selectedItem.symbol}</h3>
+          <h3 style={{ margin: '2px 0 0' }}>{selectedItem.ticker}</h3>
           <p className="ticker-sub" style={{ margin: 0 }}>
             Ex-date {formatDate(selectedItem.exDate)}
             {selectedItem.amount != null ? ` · ${formatCurrency(selectedItem.amount)}` : ''}
@@ -55,7 +55,7 @@ export function SidePanel({
           <div className="agent-analysis-body">
             {analysisLoading ? (
               <p className="agent-analysis-placeholder" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Loader2 className="spin" size={16} /> Gemini is analyzing {selectedItem.symbol}…
+                <Loader2 className="spin" size={16} /> Gemini is analyzing {selectedItem.ticker}…
               </p>
             ) : analysisError ? (
               <p className="agent-analysis-placeholder" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--error-text)' }}>
@@ -141,7 +141,7 @@ export function SidePanel({
 
       <div className="insight-card">
         <span>Highest yield</span>
-        <strong>{highestYield?.symbol ?? 'N/A'}</strong>
+        <strong>{highestYield?.ticker ?? 'N/A'}</strong>
       </div>
 
       <div>
