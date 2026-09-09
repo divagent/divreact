@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { CalendarDays, ExternalLink, Loader2, TriangleAlert } from 'lucide-react'
+import { CalendarDays, Check, ExternalLink, ListPlus, Loader2, TriangleAlert } from 'lucide-react'
 import { fetchUpcomingCalendar, type CalendarItem, type CalendarKind } from '../api/calendar'
+import { insertTrade } from '../api/trades'
 import { formatCurrency, formatDate } from '../utils/formatters'
 
 const KIND_LABEL: Record<CalendarKind, string> = {
@@ -42,6 +43,28 @@ export function UpcomingCalendar({
   const [items, setItems] = useState<CalendarItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Track which rows have been added to the Trades tab (keyed like `key` below).
+  const [added, setAdded] = useState<Record<string, boolean>>({})
+  const [addingKey, setAddingKey] = useState<string | null>(null)
+
+  async function addToTrades(item: CalendarItem, key: string) {
+    setAddingKey(key)
+    try {
+      await insertTrade({
+        symbol: item.symbol,
+        exDate: item.exDate,
+        amount: item.amount,
+        confidence: item.confidence,
+        paymentDate: item.paymentDate,
+        googleEventId: item.googleEventId,
+      })
+      setAdded((cur) => ({ ...cur, [key]: true }))
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setAddingKey(null)
+    }
+  }
 
   // The close date the forward yields were computed against (most recent stamped).
   const priceAsOf = items.reduce<string | null>(
@@ -145,18 +168,45 @@ export function UpcomingCalendar({
                     </td>
                     <td>{item.kind === 'prediction' && item.confidence != null ? `${Math.round(item.confidence * 100)}%` : '—'}</td>
                     <td>
-                      {item.htmlLink ? (
-                        <a
-                          href={item.htmlLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          title="Open in Google Calendar"
-                          style={{ color: 'var(--muted)' }}
-                          onClick={(event) => event.stopPropagation()}
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+                        <button
+                          type="button"
+                          title={added[key] ? 'Added to Trades' : 'Add to Trades'}
+                          disabled={addingKey === key || added[key]}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            addToTrades(item, key)
+                          }}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: added[key] ? 'default' : 'pointer',
+                            color: added[key] ? 'var(--success)' : 'var(--muted)',
+                            display: 'inline-flex',
+                            padding: 0,
+                          }}
                         >
-                          <ExternalLink size={14} />
-                        </a>
-                      ) : null}
+                          {addingKey === key ? (
+                            <Loader2 className="spin" size={14} />
+                          ) : added[key] ? (
+                            <Check size={14} />
+                          ) : (
+                            <ListPlus size={14} />
+                          )}
+                        </button>
+                        {item.htmlLink ? (
+                          <a
+                            href={item.htmlLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Open in Google Calendar"
+                            style={{ color: 'var(--muted)' }}
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <ExternalLink size={14} />
+                          </a>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 )

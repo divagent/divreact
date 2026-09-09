@@ -264,6 +264,35 @@ h2 {
     min-width: 0;
 }
 
+.tab-strip {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+}
+
+.tab-strip .tab {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    padding: 8px 14px;
+    margin-bottom: -1px;
+}
+
+.tab-strip .tab:hover {
+    color: var(--text);
+}
+
+.tab-strip .tab.is-active {
+    color: var(--brand-dark);
+    border-bottom-color: var(--brand-dark);
+}
+
 .ai-panel {
     padding: 18px;
 }
@@ -648,6 +677,29 @@ tbody tr {
 
 tbody tr:hover {
     background: rgba(242, 133, 0, 0.06);
+}
+
+/* Trades tab: many columns in a tight width — compact padding + smaller type. */
+.trades-table {
+    min-width: 0;
+}
+
+.trades-table th,
+.trades-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+.trades-table th {
+    letter-spacing: 0;
+}
+
+.trades-table input[type="date"] {
+    min-width: 108px;
+}
+
+.trades-table input[type="number"] {
+    min-width: 64px;
 }
 
 .symbol-cell {

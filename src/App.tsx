@@ -9,6 +9,7 @@ import { AiAgentPanel } from './components/AiAgentPanel'
 import { AppHeader } from './components/AppHeader'
 import { DividendDrawer } from './components/DividendDrawer'
 import { UpcomingCalendar } from './components/UpcomingCalendar'
+import { TradesTable } from './components/TradesTable'
 import { SidePanel } from './components/SidePanel'
 import { defaultWatchlist, queryPresets, themeVars } from './config/app'
 import { sampleDividends } from './data/sampleDividends'
@@ -33,6 +34,7 @@ export function App() {
     const [analysis, setAnalysis] = useState<DividendAnalysis | null>(null)
     const [analysisLoading, setAnalysisLoading] = useState(false)
     const [analysisError, setAnalysisError] = useState<string | null>(null)
+    const [activeTab, setActiveTab] = useState<'upcoming' | 'trades'>('upcoming')
 
     const selectedCalendarKey = selectedCalendarItem
         ? selectedCalendarItem.googleEventId ?? `${selectedCalendarItem.symbol}-${selectedCalendarItem.exDate}`
@@ -185,13 +187,38 @@ export function App() {
                         onPredicted={() => setCalendarRefreshKey((key) => key + 1)}
                     />
 
-                    <UpcomingCalendar
-                        days={30}
-                        refreshKey={calendarRefreshKey}
-                        onSelect={setSelectedCalendarItem}
-                        selectedKey={selectedCalendarKey}
-                        forwardRates={forwardRates}
-                    />
+                    <div className="tab-strip" role="tablist">
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'upcoming'}
+                            className={activeTab === 'upcoming' ? 'tab is-active' : 'tab'}
+                            onClick={() => setActiveTab('upcoming')}
+                        >
+                            Upcoming dividends
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'trades'}
+                            className={activeTab === 'trades' ? 'tab is-active' : 'tab'}
+                            onClick={() => setActiveTab('trades')}
+                        >
+                            Trades
+                        </button>
+                    </div>
+
+                    {activeTab === 'upcoming' ? (
+                        <UpcomingCalendar
+                            days={30}
+                            refreshKey={calendarRefreshKey}
+                            onSelect={setSelectedCalendarItem}
+                            selectedKey={selectedCalendarKey}
+                            forwardRates={forwardRates}
+                        />
+                    ) : (
+                        <TradesTable />
+                    )}
                 </div>
 
                 <SidePanel

@@ -12,6 +12,8 @@ export type CalendarItem = {
   amount: number | null
   kind: CalendarKind
   confidence: number | null
+  // Pay date — present only once the dividend is declared (from reconcile).
+  paymentDate: string | null
   summary: string
   googleEventId: string | null
   htmlLink: string | null
