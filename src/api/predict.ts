@@ -16,6 +16,11 @@ export type PredictRequest = {
     price: number
     ttmAmount: number
     pastYearDividends: PredictFactDividend[]
+    // Yahoo's scheduled next ex-date + per-payment estimate. Authoritative
+    // *timing* worth publishing even when the pattern/research layers withhold
+    // a forecast (e.g. variable payers) — otherwise nothing forward gets written.
+    nextExDate?: string
+    nextAmount?: number
   }
   publishToCalendar: boolean
 }
@@ -111,6 +116,8 @@ export function buildPredictRequest(
         exDate: event.date,
         amount: event.amount,
       })),
+      nextExDate: profile.nextExDate,
+      nextAmount: profile.nextAmount,
     },
     publishToCalendar,
   }
