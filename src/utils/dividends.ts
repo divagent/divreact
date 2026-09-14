@@ -15,7 +15,7 @@ export function normalizeDividends(payload: DividendApiResponse): Dividend[] {
     yield: row.yield ?? row.dividend_yield,
     frequency: row.frequency,
     exchange: row.exchange,
-    // Calendar rows label how firm they are: Confirmed | Prediction.
+    // Calendar rows label how firm they are: Declared | Prediction.
     status: row.status ?? row.divstatus,
   }))
 }

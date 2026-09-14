@@ -90,7 +90,7 @@ facts, so the backend never has to re-fetch them and the facts stay authoritativ
 
   "calendar": {
     "written": [
-      { "exDate": "2026-08-10", "divstatus": "Confirmed",  "googleEventId": "abc123", "status": "created" },
+      { "exDate": "2026-08-10", "divstatus": "Declared" ,  "googleEventId": "abc123", "status": "created" },
       { "exDate": "2026-11-10", "divstatus": "Prediction", "googleEventId": "ghi789", "status": "created" }
     ],
     "errors": []
@@ -109,7 +109,7 @@ facts, so the backend never has to re-fetch them and the facts stay authoritativ
   too little history, mid-stream cut) — in that case `projected` MAY be empty.
 - `research` is layer 3: `willMaintainPattern`, `confidence` (0..1), `reasoning`,
   and `sources[]` with resolvable URLs. `direction`: `up | down | constant`.
-- `calendar.divstatus`: `Confirmed | Prediction` → drives the event title/color
+- `calendar.divstatus`: `Declared | Prediction` → drives the event title/color
   (`IBM $1.69 (confirmed)`, `… (prediction 82%)`). A pattern estimate is published
   as `Prediction` too (it's an unconfirmed guess). Writes are idempotent — deduped
   by `(symbol, exDate)`, so re-running updates the event on that date in place.

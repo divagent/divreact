@@ -5,7 +5,7 @@ import { insertTrade } from '../api/trades'
 import { formatCurrency, formatDate } from '../utils/formatters'
 
 const STATUS_COLOR: Record<DivStatus, string> = {
-  Confirmed: 'var(--success)',
+  Declared: 'var(--success)',
   Prediction: 'var(--brand-dark)',
 }
 

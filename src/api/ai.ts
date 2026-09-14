@@ -54,7 +54,7 @@ async function streamFallbackAnswer(
   onChunk: (chunk: string) => void,
 ) {
   const highYield = dividends.filter((dividend) => Number(dividend.yield ?? 0) >= 5)
-  const confirmed = dividends.filter((dividend) => dividend.status === 'Confirmed')
+  const confirmed = dividends.filter((dividend) => dividend.status === 'Declared')
   const watched = dividends.filter((dividend) => watchlist.includes(dividend.ticker))
   const answer = [
     `Query: ${prompt}`,

@@ -72,7 +72,7 @@ export type ResearchLayer = {
 
 export type CalendarWrite = {
   exDate: string
-  divstatus: 'Confirmed' | 'Prediction'
+  divstatus: 'Declared' | 'Prediction'
   googleEventId: string | null
   status: string
 }

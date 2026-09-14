@@ -4,7 +4,7 @@ import { adminPassword, adminUsername, apiBaseUrl } from '../config/app'
 // (the same events the Predict button writes). Backed by
 // GET {VITE_CORE_API}/div_agent/calendar_upcoming?days=30.
 
-export type DivStatus = 'Confirmed' | 'Prediction'
+export type DivStatus = 'Declared' | 'Prediction'
 
 export type CalendarItem = {
   exDate: string

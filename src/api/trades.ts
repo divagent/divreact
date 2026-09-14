@@ -10,7 +10,7 @@ export type TradeRow = {
   id: string
   ticker: string
   name: string | null
-  // Firmness of the underlying tick from the calendar: Confirmed | Prediction.
+  // Firmness of the underlying tick from the calendar: Declared | Prediction.
   divstatus: string | null
   // The tick's dividend amount (per share), carried from the calendar event.
   amount: number | null

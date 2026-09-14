@@ -12,7 +12,7 @@ export const sampleDividends: Dividend[] = [
     yield: 0.72,
     frequency: 'Quarterly',
     exchange: 'NASDAQ',
-    status: 'Confirmed',
+    status: 'Declared',
   },
   {
     ticker: 'JPM',
@@ -25,7 +25,7 @@ export const sampleDividends: Dividend[] = [
     yield: 2.1,
     frequency: 'Quarterly',
     exchange: 'NYSE',
-    status: 'Confirmed',
+    status: 'Declared',
   },
   {
     ticker: 'KO',
@@ -51,7 +51,7 @@ export const sampleDividends: Dividend[] = [
     yield: 5.84,
     frequency: 'Quarterly',
     exchange: 'NYSE',
-    status: 'Confirmed',
+    status: 'Declared',
   },
   {
     ticker: 'AAPL',
@@ -64,7 +64,7 @@ export const sampleDividends: Dividend[] = [
     yield: 0.51,
     frequency: 'Quarterly',
     exchange: 'NASDAQ',
-    status: 'Confirmed',
+    status: 'Declared',
   },
   {
     ticker: 'VZ',
