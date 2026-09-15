@@ -4,6 +4,14 @@ import { theme } from '../assets/colors'
 export const apiBaseUrl = import.meta.env.VITE_CORE_API ?? 'http://localhost:8000'
 export const adminUsername = import.meta.env.VITE_ADMIN_USERNAME ?? 'admin'
 export const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD ?? ''
+
+// divagent — hosts the Strands analyze agent + the hidden trace endpoint.
+export const agentApiUrl = import.meta.env.VITE_AGENT_API ?? 'http://localhost:8001'
+// Hidden trace console: the secret path (rendered instead of the app) and the
+// shared secret sent to divagent as X-Trace-Secret. Both come from build-time env
+// in prod; the fallbacks here are dev-only conveniences.
+export const tracePath = import.meta.env.VITE_TRACE_PATH ?? '/trace'
+export const traceSecret = import.meta.env.VITE_TRACE_SECRET ?? ''
 export const pageSizeOptions = [10, 25, 50]
 export const defaultWatchlist = ['MSFT', 'KO']
 
