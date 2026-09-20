@@ -23,6 +23,13 @@ export type CalendarItem = {
   forwardYield: number | null
   price: number | null
   priceAsOf: string | null
+  // Ticker-level Yahoo facts stamped on the event at Predict time, so the
+  // click/analyze path reuses them instead of re-fetching Yahoo. Absent on
+  // events published before this was added (analyze then falls back to a fetch).
+  companyName: string | null
+  currency: string | null
+  ttmAmount: number | null
+  pastYearDividends: { exDate: string; amount: number }[]
 }
 
 export type UpcomingCalendar = {
