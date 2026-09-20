@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { streamAiQuery } from './api/ai'
-import { analyzeDividend, type DividendAnalysis } from './api/analyze'
+import { analyzeDividendStream, type AnalyzeStep, type DividendAnalysis } from './api/analyze'
 import type { CalendarItem } from './api/calendar'
 import { fetchDividends } from './api/dividends'
 import { fetchTickerProfile, isLikelyTicker } from './api/ticker'
@@ -34,6 +34,9 @@ export function App() {
     const [analysis, setAnalysis] = useState<DividendAnalysis | null>(null)
     const [analysisLoading, setAnalysisLoading] = useState(false)
     const [analysisError, setAnalysisError] = useState<string | null>(null)
+    // Live pipeline trace for the clicked row (SSE): one entry per backend step,
+    // so the panel shows how far analysis got and which step failed.
+    const [analysisSteps, setAnalysisSteps] = useState<AnalyzeStep[]>([])
     const [activeTab, setActiveTab] = useState<'upcoming' | 'trades'>('upcoming')
 
     const selectedCalendarKey = selectedCalendarItem
@@ -47,6 +50,7 @@ export function App() {
             setAnalysis(null)
             setAnalysisError(null)
             setAnalysisLoading(false)
+            setAnalysisSteps([])
             return
         }
 
@@ -55,10 +59,17 @@ export function App() {
         setAnalysis(null)
         setAnalysisError(null)
         setAnalysisLoading(true)
+        setAnalysisSteps([])
 
-        analyzeDividend(selectedCalendarItem, controller.signal)
+        analyzeDividendStream(
+            selectedCalendarItem,
+            (step) => {
+                if (active) setAnalysisSteps((current) => [...current, step])
+            },
+            controller.signal,
+        )
             .then((result) => {
-                if (!active) return
+                if (!active || !result) return
                 setAnalysis(result)
                 // The agent found a declaration and corrected the calendar row in
                 // place — refresh the calendar so the corrected row shows now.
@@ -230,6 +241,7 @@ export function App() {
                     analysis={analysis}
                     analysisLoading={analysisLoading}
                     analysisError={analysisError}
+                    analysisSteps={analysisSteps}
                 />
             </section>
 

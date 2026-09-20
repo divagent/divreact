@@ -1,5 +1,5 @@
-import { ExternalLink, Loader2, Sparkles, TriangleAlert, X } from 'lucide-react'
-import type { DividendAnalysis, RiskLabel } from '../api/analyze'
+import { Check, ExternalLink, Loader2, Sparkles, TriangleAlert, X } from 'lucide-react'
+import type { AnalyzeStep, DividendAnalysis, RiskLabel } from '../api/analyze'
 import type { CalendarItem } from '../api/calendar'
 import type { Dividend } from '../types/dividend'
 import { formatCurrency, formatDate } from '../utils/formatters'
@@ -11,6 +11,36 @@ const RISK_COLOR: Record<RiskLabel, string> = {
   unknown: 'var(--muted)',
 }
 
+// Human-readable one-liner for a streamed pipeline step (the SSE trace).
+function describeStep(step: AnalyzeStep): string {
+  switch (step.step) {
+    case 'request':
+      return 'Request sent to backend'
+    case 'grounding':
+      return step.status === 'skipped'
+        ? 'Grounding skipped — no Yahoo facts on the row'
+        : `Grounding built${step.detail ? ` — ${step.detail}` : ''}`
+    case 'signals':
+      return `Signals gathered — ${step.sources ?? 0} source(s)${step.declared ? ', declared dividend found' : ''}`
+    case 'reconcile':
+      return 'Reconcile started (declaration found, correcting calendar)'
+    case 'reconcile_result':
+      return step.corrected ? 'Calendar corrected: Prediction → Declared' : 'Reconcile ran — no change needed'
+    case 'llm_request':
+      return 'LLM read requested (rotating model)'
+    case 'llm_response':
+      return `LLM responded — ${step.chars ?? 0} chars${step.empty ? ' (EMPTY)' : ''} via ${step.model ?? '?'}`
+    case 'parse':
+      return 'Parsed the model JSON response'
+    case 'done':
+      return 'Analysis complete'
+    case 'error':
+      return `Failed at "${step.failedStep ?? '?'}" — ${step.errorType ?? 'Error'}: ${step.error ?? ''}`
+    default:
+      return step.step
+  }
+}
+
 export function SidePanel({
   watchlist,
   highestYield,
@@ -20,6 +50,7 @@ export function SidePanel({
   analysis,
   analysisLoading = false,
   analysisError = null,
+  analysisSteps = [],
 }: {
   watchlist: string[]
   highestYield?: Dividend
@@ -29,7 +60,9 @@ export function SidePanel({
   analysis?: DividendAnalysis | null
   analysisLoading?: boolean
   analysisError?: string | null
+  analysisSteps?: AnalyzeStep[]
 }) {
+  const requestStep = analysisSteps.find((s) => s.step === 'request')
   return (
     <aside className="side-panel">
       {selectedItem ? (
@@ -53,6 +86,70 @@ export function SidePanel({
           </p>
 
           <div className="agent-analysis-body">
+            {analysisSteps.length ? (
+              <div
+                style={{
+                  margin: '0 0 12px',
+                  padding: '8px 10px',
+                  border: '1px solid var(--border, rgba(0,0,0,0.1))',
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              >
+                <p className="agent-analysis-label" style={{ margin: '0 0 6px' }}>
+                  Pipeline trace
+                </p>
+                {requestStep ? (
+                  <pre
+                    style={{
+                      margin: '0 0 8px',
+                      padding: 8,
+                      background: 'rgba(0,0,0,0.04)',
+                      borderRadius: 6,
+                      fontSize: 11,
+                      lineHeight: 1.4,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      maxHeight: 180,
+                      overflow: 'auto',
+                    }}
+                  >
+                    {JSON.stringify(requestStep.request, null, 2)}
+                  </pre>
+                ) : null}
+                <ol style={{ margin: 0, paddingLeft: 0, listStyle: 'none' }}>
+                  {analysisSteps.map((step, index) => {
+                    const isError = step.step === 'error' || step.status === 'error'
+                    return (
+                      <li
+                        key={`${step.step}-${index}`}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 6,
+                          marginBottom: 4,
+                          color: isError ? 'var(--error-text)' : 'inherit',
+                        }}
+                      >
+                        {isError ? (
+                          <TriangleAlert size={13} style={{ flexShrink: 0, marginTop: 2 }} />
+                        ) : (
+                          <Check size={13} style={{ flexShrink: 0, marginTop: 2, color: 'var(--success)' }} />
+                        )}
+                        <span>{describeStep(step)}</span>
+                      </li>
+                    )
+                  })}
+                  {analysisLoading ? (
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)' }}>
+                      <Loader2 className="spin" size={13} style={{ flexShrink: 0 }} />
+                      <span>working…</span>
+                    </li>
+                  ) : null}
+                </ol>
+              </div>
+            ) : null}
+
             {analysisLoading ? (
               <p className="agent-analysis-placeholder" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Loader2 className="spin" size={16} /> Gemini is analyzing {selectedItem.ticker}…

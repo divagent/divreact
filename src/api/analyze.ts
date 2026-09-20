@@ -13,6 +13,16 @@ import { fetchTickerProfile } from './ticker'
 
 export type AnalysisSource = { title: string; url: string }
 
+// One event from the streaming analyze endpoint. `step` names the pipeline stage
+// (request/grounding/signals/reconcile/llm_request/llm_response/parse/done/error);
+// the other keys are step-specific (e.g. request payload, source counts, the
+// failing step + error). Loosely typed on purpose — it's a live diagnostic trace.
+export type AnalyzeStep = {
+  step: string
+  status?: string
+  [key: string]: unknown
+}
+
 export type RiskLabel = 'low' | 'medium' | 'high' | 'unknown'
 
 export type DividendAnalysis = {
@@ -107,4 +117,70 @@ export async function analyzeDividend(
   if (!response.ok) throw new Error(`Analyze API returned ${response.status}`)
 
   return (await response.json()) as DividendAnalysis
+}
+
+// Streaming variant: hits POST /div_agent/analyze_dividend/stream and invokes
+// `onStep` for every pipeline milestone (request → … → done | error) so the UI
+// can show how far the analysis got. Resolves to the final DividendAnalysis
+// carried on the terminal `result` event (null if the stream ended without one).
+export async function analyzeDividendStream(
+  item: CalendarItem,
+  onStep: (step: AnalyzeStep) => void,
+  signal?: AbortSignal,
+): Promise<DividendAnalysis | null> {
+  const url = new URL('/div_agent/analyze_dividend/stream', apiBaseUrl)
+
+  const headers = new Headers({ 'Content-Type': 'application/json' })
+  if (adminPassword) {
+    headers.set('Authorization', `Basic ${btoa(`${adminUsername}:${adminPassword}`)}`)
+  }
+
+  // Same body as analyzeDividend: prefer facts stamped on the row, else re-fetch.
+  const facts = factsFromItem(item) ?? (await loadFacts(item.ticker, signal))
+  const body = {
+    ticker: item.ticker,
+    exDate: item.exDate,
+    amount: item.amount,
+    divstatus: item.divstatus,
+    confidence: item.confidence,
+    summary: item.summary,
+    facts,
+  }
+
+  const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal })
+  if (!response.ok || !response.body) throw new Error(`Analyze stream returned ${response.status}`)
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let result: DividendAnalysis | null = null
+
+  const handleFrame = (frame: string) => {
+    // An SSE frame may have several lines; we only emit `data:` payloads.
+    const dataLine = frame.split('\n').find((line) => line.startsWith('data:'))
+    if (!dataLine) return
+    const payload = dataLine.slice(5).trim()
+    if (!payload) return
+    const step = JSON.parse(payload) as AnalyzeStep
+    if (step.step === 'result') {
+      result = (step.response as DividendAnalysis) ?? null
+    } else {
+      onStep(step)
+    }
+  }
+
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    // Frames are separated by a blank line (\n\n).
+    let sep: number
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      handleFrame(buffer.slice(0, sep))
+      buffer = buffer.slice(sep + 2)
+    }
+  }
+  if (buffer.trim()) handleFrame(buffer) // flush any trailing frame
+
+  return result
 }
