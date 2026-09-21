@@ -33,6 +33,9 @@ export function UpcomingCalendar({
   // Forward yield (%) keyed by symbol, e.g. { IBM: 2.87 }.
   forwardRates?: Record<string, number>
 }) {
+  // Ex-dates that have already arrived (today or earlier): buying now no longer
+  // earns the dividend, so these rows are greyed out as non-actionable.
+  const today = new Date().toISOString().slice(0, 10)
   const [items, setItems] = useState<CalendarItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -132,6 +135,8 @@ export function UpcomingCalendar({
                 const key = item.googleEventId ?? `${item.ticker}-${item.exDate}`
                 // Prefer the per-event cached forward yield; fall back to the map.
                 const rate = item.forwardYield ?? forwardRates[item.ticker.toUpperCase()]
+                // Ex-date reached: dividend no longer capturable by trading now.
+                const exPassed = item.exDate.slice(0, 10) <= today
                 return (
                   <tr
                     key={key}
@@ -139,6 +144,7 @@ export function UpcomingCalendar({
                     style={{
                       cursor: onSelect ? 'pointer' : undefined,
                       background: selectedKey === key ? 'rgba(242, 133, 0, 0.1)' : undefined,
+                      opacity: exPassed ? 0.45 : undefined,
                     }}
                   >
                     <td>{formatDate(item.exDate)}</td>
