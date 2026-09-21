@@ -27,7 +27,6 @@ export function App() {
     const [aiPrompt, setAiPrompt] = useState(queryPresets[0])
     const [aiOutput, setAiOutput] = useState('')
     const [isAiStreaming, setIsAiStreaming] = useState(false)
-    const [hasAutoInterpreted, setHasAutoInterpreted] = useState(false)
     const [tickerProfile, setTickerProfile] = useState<TickerProfile | null>(null)
     const [isProfileLoading, setIsProfileLoading] = useState(false)
     const [calendarRefreshKey, setCalendarRefreshKey] = useState(0)
@@ -123,26 +122,6 @@ export function App() {
     )
 
     const highestYield = getHighestYield(filteredDividends)
-
-    // On first load, once the calendar is populated, have the AI agent interpret
-    // the current calendar and watchlist straight into the panel — no manual ask.
-    useEffect(() => {
-        if (hasAutoInterpreted || filteredDividends.length === 0) return
-        setHasAutoInterpreted(true)
-        setIsAiStreaming(true)
-        setAiOutput('')
-
-        streamAiQuery(
-            {
-                prompt: 'Interpret the current dividend calendar and my watchlist.',
-                filters: { startDate, endDate, exchange: 'all', search: '' },
-                watchlist,
-                dividends: filteredDividends.slice(0, 30),
-            },
-            (chunk) => setAiOutput((current) => current + chunk),
-            (chunk) => setAiOutput((current) => current + chunk),
-        ).finally(() => setIsAiStreaming(false))
-    }, [filteredDividends, hasAutoInterpreted, watchlist, startDate, endDate])
 
     // Forward yield (%) per symbol, fed to the calendar's "Forward Rate" column.
     const forwardRates = useMemo(() => {

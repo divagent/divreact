@@ -60,9 +60,9 @@ export function AiAgentPanel({
                 </div>
             ) : profile ? (
                 <TickerProfileCard profile={profile} onPredicted={onPredicted} />
-            ) : (
+            ) : output ? (
                 <pre className="ai-output">{output}</pre>
-            )}
+            ) : null}
         </section>
     )
 }
