@@ -1,7 +1,6 @@
 import { Check, ExternalLink, Loader2, Sparkles, TriangleAlert, X } from 'lucide-react'
 import type { AnalyzeStep, DividendAnalysis, RiskLabel } from '../api/analyze'
 import type { CalendarItem } from '../api/calendar'
-import type { Dividend } from '../types/dividend'
 import { formatCurrency, formatDate } from '../utils/formatters'
 import { MarketSnapshot } from './MarketSnapshot'
 
@@ -47,9 +46,6 @@ function describeStep(step: AnalyzeStep): string {
 }
 
 export function SidePanel({
-  watchlist,
-  highestYield,
-  onSelectSymbol,
   selectedItem,
   onClearSelection,
   analysis,
@@ -57,9 +53,6 @@ export function SidePanel({
   analysisError = null,
   analysisSteps = [],
 }: {
-  watchlist: string[]
-  highestYield?: Dividend
-  onSelectSymbol: (symbol: string) => void
   selectedItem?: CalendarItem | null
   onClearSelection?: () => void
   analysis?: DividendAnalysis | null
@@ -236,33 +229,23 @@ export function SidePanel({
       )}
 
       <div>
-        <p className="eyebrow">Saved symbols</p>
-        <h3>Watchlist</h3>
-      </div>
-      {watchlist.length ? (
-        <div className="watchlist">
-          {watchlist.map((symbol) => (
-            <button key={symbol} type="button" onClick={() => onSelectSymbol(symbol)}>
-              {symbol}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <p>No symbols saved yet.</p>
-      )}
-
-      <div className="insight-card">
-        <span>Highest yield</span>
-        <strong>{highestYield?.ticker ?? 'N/A'}</strong>
-      </div>
-
-      <div>
         <p className="eyebrow">Market calendars</p>
         <div className="calendar-links">
-          <a href="#">Earnings</a>
-          <a href="#">IPO Calendar</a>
-          <a href="#">Economic</a>
-          <a href="#">Stock splits</a>
+          <a href="https://www.nasdaq.com/market-activity/dividends" target="_blank" rel="noreferrer">
+            Dividends
+          </a>
+          <a href="https://www.nasdaq.com/market-activity/earnings" target="_blank" rel="noreferrer">
+            Earnings
+          </a>
+          <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank" rel="noreferrer">
+            IPO Calendar
+          </a>
+          <a href="https://www.nasdaq.com/market-activity/economic-calendar" target="_blank" rel="noreferrer">
+            Economic
+          </a>
+          <a href="https://www.nasdaq.com/market-activity/stock-splits" target="_blank" rel="noreferrer">
+            Stock splits
+          </a>
         </div>
       </div>
     </aside>

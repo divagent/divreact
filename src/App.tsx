@@ -14,7 +14,7 @@ import { SidePanel } from './components/SidePanel'
 import { defaultWatchlist, queryPresets, themeVars } from './config/app'
 import { sampleDividends } from './data/sampleDividends'
 import type { Dividend } from './types/dividend'
-import { filterAndSortDividends, getHighestYield } from './utils/dividends'
+import { filterAndSortDividends } from './utils/dividends'
 import { addDays } from './utils/formatters'
 
 export function App() {
@@ -121,7 +121,6 @@ export function App() {
         [dividends],
     )
 
-    const highestYield = getHighestYield(filteredDividends)
 
     // Forward yield (%) per symbol, fed to the calendar's "Forward Rate" column.
     const forwardRates = useMemo(() => {
@@ -177,10 +176,6 @@ export function App() {
         setIsAiStreaming(false)
     }
 
-    function promptForSymbol(symbol: string) {
-        setAiPrompt(`Analyze dividend timing, yield, and payment risk for ${symbol}.`)
-    }
-
     return (
         <main className="app-shell" style={themeVars}>
             <AppHeader />
@@ -233,9 +228,6 @@ export function App() {
                 </div>
 
                 <SidePanel
-                    watchlist={watchlist}
-                    highestYield={highestYield}
-                    onSelectSymbol={promptForSymbol}
                     selectedItem={selectedCalendarItem}
                     onClearSelection={() => setSelectedCalendarItem(null)}
                     analysis={analysis}
