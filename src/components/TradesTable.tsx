@@ -149,6 +149,7 @@ export function TradesTable() {
 
   return (
     <section className="table-panel">
+      <div className="table-fit">
       <div className="table-header">
         <div>
           <h2>Trades</h2>
@@ -250,6 +251,7 @@ export function TradesTable() {
           </span>
         </div>
       )}
+      </div>
     </section>
   )
 }

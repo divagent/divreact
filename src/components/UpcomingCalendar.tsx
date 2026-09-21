@@ -92,6 +92,7 @@ export function UpcomingCalendar({
 
   return (
     <section className="table-panel">
+      <div className="table-fit">
       <div className="table-header">
         <div>
           <h2>Upcoming dividends</h2>
@@ -214,6 +215,7 @@ export function UpcomingCalendar({
           <span>No dividends on the calendar for the next {days} days.</span>
         </div>
       )}
+      </div>
     </section>
   )
 }

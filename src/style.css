@@ -624,6 +624,18 @@ h2 {
     outline: 0;
 }
 
+/* Hug the table's own width so the header (and its right-aligned actions like
+   the "Hidden off" toggle) lines up with the table's right edge instead of the
+   full panel width. Caps at the panel width; the table then scrolls. */
+.table-fit {
+    width: fit-content;
+    max-width: 100%;
+}
+
+.table-fit .table-header {
+    width: 100%;
+}
+
 .table-scroll {
     overflow-x: auto;
 }
