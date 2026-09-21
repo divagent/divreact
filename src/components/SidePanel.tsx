@@ -65,6 +65,13 @@ export function SidePanel({
   analysisSteps?: AnalyzeStep[]
 }) {
   const requestStep = analysisSteps.find((s) => s.step === 'request')
+  // The model actually running is drawn per-call from the rotation ring, so it's
+  // whatever the latest step reports (llm_response/llm_error/done) — not a fixed
+  // provider. Fall back to neutral text until the first model is chosen.
+  const activeModel = [...analysisSteps]
+    .reverse()
+    .map((s) => s.model)
+    .find((m): m is string => typeof m === 'string' && !!m && m !== 'rotating')
   return (
     <aside className="side-panel">
       {selectedItem ? (
@@ -154,7 +161,8 @@ export function SidePanel({
 
             {analysisLoading ? (
               <p className="agent-analysis-placeholder" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Loader2 className="spin" size={16} /> Gemini is analyzing {selectedItem.ticker}…
+                <Loader2 className="spin" size={16} />{' '}
+                {activeModel ? `${activeModel} is analyzing` : 'Analyzing'} {selectedItem.ticker}…
               </p>
             ) : analysisError ? (
               <p className="agent-analysis-placeholder" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--error-text)' }}>

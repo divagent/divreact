@@ -43,8 +43,8 @@ export function App() {
         ? selectedCalendarItem.googleEventId ?? `${selectedCalendarItem.ticker}-${selectedCalendarItem.exDate}`
         : null
 
-    // When a calendar row is selected, ask the backend's Gemini agent to analyze
-    // that specific dividend event and stream the reasoning into the side panel.
+    // When a calendar row is selected, ask the backend agent to analyze that
+    // specific dividend event and stream the reasoning into the side panel.
     useEffect(() => {
         if (!selectedCalendarItem) {
             setAnalysis(null)

@@ -2,7 +2,7 @@ import { adminPassword, adminUsername, apiBaseUrl } from '../config/app'
 import type { CalendarItem } from './calendar'
 import { fetchTickerProfile } from './ticker'
 
-// Gemini agent read on a single clicked calendar event.
+// Agent read on a single clicked calendar event (model drawn from the rotation ring).
 // Backed by POST {VITE_CORE_API}/div_agent/analyze_dividend.
 //
 // Grounding `facts` are collected ONCE at query/Predict time and stamped onto the
