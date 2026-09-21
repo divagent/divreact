@@ -22,6 +22,8 @@ function describeStep(step: AnalyzeStep): string {
         : `Grounding built${step.detail ? ` — ${step.detail}` : ''}`
     case 'signals':
       return `Signals gathered — ${step.sources ?? 0} source(s)${step.declared ? ', declared dividend found' : ''}`
+    case 'rumor':
+      return `Breaking-news sweep — ${step.sources ?? 0} source(s)${step.breaking ? ', new chatter found' : ', nothing material since declaration'}`
     case 'reconcile':
       return 'Reconcile started (declaration found, correcting calendar)'
     case 'reconcile_result':
