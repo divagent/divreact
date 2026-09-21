@@ -627,15 +627,10 @@ h2 {
     outline: 0;
 }
 
-/* Hug the table's own width so the header (and its right-aligned actions like
-   the "Hidden off" toggle) lines up with the table's right edge instead of the
-   full panel width. Caps at the panel width; the table then scrolls. */
+/* The table fills the panel, so this wrapper just spans full width; the header's
+   right-aligned actions (e.g. the "Hidden off" toggle) then align with the
+   table's right edge naturally. */
 .table-fit {
-    width: fit-content;
-    max-width: 100%;
-}
-
-.table-fit .table-header {
     width: 100%;
 }
 
@@ -695,12 +690,12 @@ tbody tr:hover {
 }
 
 /* Shared by the Trades and Upcoming dividends tables: many columns in a tight
-   width — compact padding + smaller type. width:auto lets the table hug its
-   content instead of stretching to fill the panel (which spread the columns
-   apart with ugly gaps and left a wide empty band after the last column). */
+   width — compact padding + smaller type. width:100% + min-width:0 lets the
+   table stretch to fill its panel (no empty band after the last column) while
+   still being allowed to shrink below the base 980px floor on narrow screens. */
 .data-table {
     min-width: 0;
-    width: auto;
+    width: 100%;
 }
 
 .data-table th,
