@@ -245,11 +245,10 @@ h2 {
     align-items: start;
     display: grid;
     gap: 20px;
-    /* Cap both columns near their content width — main column to the table, side
-       pane to a comfortable ~420px — then center the grid so leftover width
-       becomes balanced margins instead of stretching either column. */
-    grid-template-columns: minmax(0, 840px) minmax(360px, 420px);
-    justify-content: center;
+    /* Fill the full width edge-to-edge (no outer margins): main column caps near
+       the table's width so its empty band stays small, and the side pane (1fr)
+       stretches to absorb the rest. */
+    grid-template-columns: minmax(0, 840px) minmax(360px, 1fr);
     margin-top: 16px;
 }
 
