@@ -114,7 +114,7 @@ export function UpcomingCalendar({
         </div>
       ) : items.length ? (
         <div className="table-scroll">
-          <table>
+          <table className="data-table">
             <thead>
               <tr>
                 <th>Ex-date</th>

@@ -189,7 +189,7 @@ export function TradesTable() {
         </div>
       ) : visible.length ? (
         <div className="table-scroll">
-          <table className="trades-table">
+          <table className="data-table">
             <thead>
               <tr>
                 <th>Ticker</th>

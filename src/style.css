@@ -245,7 +245,7 @@ h2 {
     align-items: start;
     display: grid;
     gap: 20px;
-    grid-template-columns: minmax(0, 1fr) 310px;
+    grid-template-columns: minmax(0, 1fr) 360px;
     margin-top: 16px;
 }
 
@@ -679,29 +679,30 @@ tbody tr:hover {
     background: rgba(242, 133, 0, 0.06);
 }
 
-/* Trades tab: many columns in a tight width — compact padding + smaller type.
-   width:auto lets the table hug its content instead of stretching to fill the
-   panel (which spread the columns apart with ugly gaps). */
-.trades-table {
+/* Shared by the Trades and Upcoming dividends tables: many columns in a tight
+   width — compact padding + smaller type. width:auto lets the table hug its
+   content instead of stretching to fill the panel (which spread the columns
+   apart with ugly gaps and left a wide empty band after the last column). */
+.data-table {
     min-width: 0;
     width: auto;
 }
 
-.trades-table th,
-.trades-table td {
-    padding: 10px 18px;
+.data-table th,
+.data-table td {
+    padding: 10px 14px;
     font-size: 12px;
 }
 
-.trades-table th {
+.data-table th {
     letter-spacing: 0;
 }
 
-.trades-table input[type="date"] {
+.data-table input[type="date"] {
     min-width: 108px;
 }
 
-.trades-table input[type="number"] {
+.data-table input[type="number"] {
     min-width: 64px;
 }
 
