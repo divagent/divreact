@@ -85,7 +85,7 @@ function EditCell({
         ...cellInput,
         // Fixed per-type widths so number columns stay compact instead of
         // stretching to fill the row (the cause of the sparse look).
-        width: type === 'date' ? 120 : money || type === 'number' ? 92 : 150,
+        width: type === 'date' ? 104 : money || type === 'number' ? 74 : 120,
         textAlign: money || type === 'number' ? 'right' : 'left',
       }}
     />

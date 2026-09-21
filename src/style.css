@@ -245,7 +245,7 @@ h2 {
     align-items: start;
     display: grid;
     gap: 20px;
-    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-columns: minmax(0, 1fr) 400px;
     margin-top: 16px;
 }
 
@@ -690,7 +690,7 @@ tbody tr:hover {
 
 .data-table th,
 .data-table td {
-    padding: 10px 14px;
+    padding: 10px 12px;
     font-size: 12px;
 }
 
@@ -699,11 +699,11 @@ tbody tr:hover {
 }
 
 .data-table input[type="date"] {
-    min-width: 108px;
+    min-width: 96px;
 }
 
 .data-table input[type="number"] {
-    min-width: 64px;
+    min-width: 56px;
 }
 
 .symbol-cell {
