@@ -28,6 +28,8 @@ function describeStep(step: AnalyzeStep): string {
       return step.corrected ? 'Calendar corrected: Prediction → Declared' : 'Reconcile ran — no change needed'
     case 'llm_request':
       return 'LLM read requested (rotating model)'
+    case 'llm_error':
+      return `LLM failed on ${step.model ?? '?'} — ${step.error ?? ''}; rotating to next model`
     case 'llm_response':
       return `LLM responded — ${step.chars ?? 0} chars${step.empty ? ' (EMPTY)' : ''} via ${step.model ?? '?'}`
     case 'parse':
