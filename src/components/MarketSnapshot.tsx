@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Loader2, TrendingDown, TrendingUp } from 'lucide-react'
-import { fetchQuote, MARKET_SYMBOLS, type Quote } from '../api/markets'
+import { fetchMarketSummary, type MarketBrief } from '../api/marketSummary'
 
-// Idle-state right pane: a live markets snapshot (indices + 10Y yield) that gives
-// market-wide context you can't read off the dividend calendar. Refreshes on a
-// 60s timer while mounted. Shown only when no calendar row is selected — the
-// per-row agent analysis takes over that space on click (unchanged).
+// Idle-state right pane: an hourly AI "Stock market today" briefing — headline,
+// desk byline + timestamp, real index/mover moves, and a narrative paragraph, in
+// the style of a living MSN market wrap. The heavy work (Exa news + Yahoo quotes +
+// LLM) runs in divagent and is cached ~hourly, so we just poll every 5 min while
+// mounted. Shown only when no calendar row is selected — the per-row agent analysis
+// takes over that space on click (unchanged).
 export function MarketSnapshot() {
-  const [quotes, setQuotes] = useState<Quote[]>([])
+  const [brief, setBrief] = useState<MarketBrief | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -15,65 +17,93 @@ export function MarketSnapshot() {
     const controller = new AbortController()
 
     async function load() {
-      // allSettled so one bad symbol (e.g. a stale ^TNX) doesn't blank the rest.
-      const settled = await Promise.allSettled(MARKET_SYMBOLS.map((s) => fetchQuote(s, controller.signal)))
-      if (controller.signal.aborted) return
-      const ok = settled
-        .filter((r): r is PromiseFulfilledResult<Quote> => r.status === 'fulfilled')
-        .map((r) => r.value)
-      if (ok.length) {
-        setQuotes(ok)
+      try {
+        const next = await fetchMarketSummary(controller.signal)
+        if (controller.signal.aborted) return
+        setBrief(next)
         setError(null)
-      } else {
-        setError('Markets unavailable')
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+        // Keep the last good briefing on screen; only surface an error if we have none.
+        setError((err as Error).message)
+      } finally {
+        if (!controller.signal.aborted) setLoading(false)
       }
-      setLoading(false)
     }
 
     load()
-    const timer = window.setInterval(load, 60_000)
+    // Server caches hourly; a 5-min poll is enough to pick up the next refresh.
+    const timer = window.setInterval(load, 5 * 60_000)
     return () => {
       controller.abort()
       window.clearInterval(timer)
     }
   }, [])
 
+  const updated = brief?.updatedAt ? new Date(brief.updatedAt) : null
+
   return (
-    <div className="market-snapshot">
+    <div className="market-brief">
       <p className="eyebrow" style={{ margin: 0 }}>
-        Markets
+        Stock market today
       </p>
 
-      {loading && !quotes.length ? (
+      {loading && !brief ? (
         <p className="agent-analysis-placeholder" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Loader2 className="spin" size={14} /> Loading markets…
+          <Loader2 className="spin" size={14} /> Summarizing the market…
         </p>
-      ) : error && !quotes.length ? (
+      ) : error && !brief ? (
         <p className="agent-analysis-placeholder">{error}</p>
-      ) : (
-        <ul className="market-list">
-          {quotes.map((q) => {
-            const up = q.change >= 0
-            const color = up ? 'var(--success)' : 'var(--error-text)'
-            return (
-              <li key={q.symbol}>
-                <span className="market-name">{q.label}</span>
-                <span className="market-value">
-                  {q.kind === 'rate'
-                    ? `${q.price.toFixed(2)}%`
-                    : q.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-                <span className="market-change" style={{ color }}>
-                  {up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                  {q.kind === 'rate'
-                    ? `${up ? '+' : ''}${q.change.toFixed(2)}`
-                    : `${up ? '+' : ''}${q.changePercent.toFixed(2)}%`}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      ) : brief ? (
+        <>
+          <h3 className="market-brief-headline">{brief.headline}</h3>
+
+          {(brief.byline || updated) && (
+            <p className="market-brief-byline">
+              {brief.byline}
+              {brief.byline && updated ? ' · ' : ''}
+              {updated
+                ? `Updated ${updated.toLocaleString(undefined, {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })}`
+                : ''}
+            </p>
+          )}
+
+          {brief.movers.length ? (
+            <ul className="mover-row">
+              {brief.movers.map((m) => {
+                const pct = m.changePercent
+                const up = (pct ?? 0) >= 0
+                const color = up ? 'var(--success)' : 'var(--error-text)'
+                return (
+                  <li key={m.symbol} className="mover-chip" title={m.label ?? m.symbol}>
+                    <span className="mover-symbol">{m.symbol}</span>
+                    {pct != null ? (
+                      <span className="mover-change" style={{ color }}>
+                        {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                        {`${up ? '+' : ''}${pct.toFixed(2)}%`}
+                      </span>
+                    ) : null}
+                  </li>
+                )
+              })}
+            </ul>
+          ) : null}
+
+          <p className="market-brief-body">{brief.summary}</p>
+
+          {brief.model ? (
+            <p className="ticker-sub" style={{ margin: '4px 0 0', fontSize: 11 }}>
+              Generated by {brief.model}
+            </p>
+          ) : null}
+        </>
+      ) : null}
     </div>
   )
 }

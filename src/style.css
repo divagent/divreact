@@ -638,44 +638,68 @@ h2 {
     overflow-x: auto;
 }
 
-/* Idle right-pane markets snapshot: one row per instrument, tabular figures so
-   values and changes line up cleanly. */
-.market-list {
+/* Idle right-pane "Stock market today" briefing: an hourly AI market wrap —
+   headline, desk byline + timestamp, real mover chips, and a narrative paragraph. */
+.market-brief {
     display: grid;
-    gap: 10px;
+    gap: 8px;
+}
+
+.market-brief-headline {
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 2px 0 0;
+}
+
+.market-brief-byline {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.market-brief-body {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 4px 0 0;
+}
+
+/* Mover row: compact chips with a symbol and its real day change, tabular figures. */
+.mover-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
     list-style: none;
-    margin: 10px 0 0;
+    margin: 4px 0 2px;
     padding: 0;
 }
 
-.market-list li {
-    align-items: baseline;
-    display: grid;
-    gap: 10px;
-    grid-template-columns: 1fr auto auto;
+.mover-chip {
+    align-items: center;
+    background: var(--section);
+    border: 1px solid var(--ghost);
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    gap: 6px;
+    padding: 4px 8px;
 }
 
-.market-name {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.market-value {
-    font-size: 13px;
+.mover-symbol {
+    color: var(--text);
+    font-size: 12px;
     font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
 }
 
-.market-change {
+.mover-change {
     align-items: center;
     display: inline-flex;
     font-size: 12px;
     font-variant-numeric: tabular-nums;
     font-weight: 600;
-    gap: 3px;
-    justify-content: flex-end;
-    min-width: 62px;
+    gap: 2px;
 }
 
 table {
