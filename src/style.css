@@ -245,7 +245,9 @@ h2 {
     align-items: start;
     display: grid;
     gap: 20px;
-    grid-template-columns: minmax(0, 1fr) 400px;
+    /* Cap the main column near the table's natural width so the table panel
+       stops trailing a wide empty band; the right pane (1fr) absorbs the rest. */
+    grid-template-columns: minmax(0, 840px) minmax(380px, 1fr);
     margin-top: 16px;
 }
 
