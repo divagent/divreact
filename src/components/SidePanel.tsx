@@ -3,6 +3,7 @@ import type { AnalyzeStep, DividendAnalysis, RiskLabel } from '../api/analyze'
 import type { CalendarItem } from '../api/calendar'
 import type { Dividend } from '../types/dividend'
 import { formatCurrency, formatDate } from '../utils/formatters'
+import { MarketSnapshot } from './MarketSnapshot'
 
 const RISK_COLOR: Record<RiskLabel, string> = {
   low: 'var(--success)',
@@ -230,7 +231,9 @@ export function SidePanel({
             )}
           </div>
         </div>
-      ) : null}
+      ) : (
+        <MarketSnapshot />
+      )}
 
       <div>
         <p className="eyebrow">Saved symbols</p>

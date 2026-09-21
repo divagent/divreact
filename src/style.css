@@ -638,6 +638,46 @@ h2 {
     overflow-x: auto;
 }
 
+/* Idle right-pane markets snapshot: one row per instrument, tabular figures so
+   values and changes line up cleanly. */
+.market-list {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+}
+
+.market-list li {
+    align-items: baseline;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr auto auto;
+}
+
+.market-name {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.market-value {
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.market-change {
+    align-items: center;
+    display: inline-flex;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    gap: 3px;
+    justify-content: flex-end;
+    min-width: 62px;
+}
+
 table {
     border-collapse: collapse;
     min-width: 980px;
