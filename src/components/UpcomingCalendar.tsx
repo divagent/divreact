@@ -36,6 +36,8 @@ export function UpcomingCalendar({
   // Ex-dates that have already arrived (today or earlier): buying now no longer
   // earns the dividend, so these rows are greyed out as non-actionable.
   const today = new Date().toISOString().slice(0, 10)
+  // Tomorrow's ex-date is the last day to buy in — highlight it in brand orange.
+  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)
   const [items, setItems] = useState<CalendarItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -137,13 +139,21 @@ export function UpcomingCalendar({
                 const rate = item.forwardYield ?? forwardRates[item.ticker.toUpperCase()]
                 // Ex-date reached: dividend no longer capturable by trading now.
                 const exPassed = item.exDate.slice(0, 10) <= today
+                // Ex-date is tomorrow: last chance to buy in, so make it stand out.
+                const isTomorrow = item.exDate.slice(0, 10) === tomorrow
                 return (
                   <tr
                     key={key}
                     onClick={() => onSelect?.(item)}
                     style={{
                       cursor: onSelect ? 'pointer' : undefined,
-                      background: selectedKey === key ? 'rgba(242, 133, 0, 0.1)' : undefined,
+                      background:
+                        selectedKey === key
+                          ? 'rgba(242, 133, 0, 0.1)'
+                          : isTomorrow
+                            ? 'rgba(242, 133, 0, 0.12)'
+                            : undefined,
+                      boxShadow: isTomorrow ? 'inset 3px 0 0 var(--brand, #f28500)' : undefined,
                       opacity: exPassed ? 0.45 : undefined,
                     }}
                   >
